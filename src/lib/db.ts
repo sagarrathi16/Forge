@@ -38,3 +38,4 @@ export async function insertWaitlistEmail(email: string): Promise<{ success: boo
   inMemoryWaitlist.add(normalizedEmail);
   return { success: true };
 }
+

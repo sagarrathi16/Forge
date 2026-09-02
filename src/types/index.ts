@@ -41,3 +41,4 @@ export interface WaitlistResponse {
   message?: string;
   error?: string;
 }
+

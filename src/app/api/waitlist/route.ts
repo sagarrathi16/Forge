@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { validateEmail } from '@/lib/validation';
 import { insertWaitlistEmail } from '@/lib/db';
+import { validateEmail } from '@/lib/validation';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,3 +37,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

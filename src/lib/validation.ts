@@ -20,3 +20,4 @@ export function validateEmail(email: string): { isValid: boolean; error?: string
 
   return { isValid: true };
 }
+
