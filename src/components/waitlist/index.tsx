@@ -51,7 +51,7 @@ export default function WaitlistForm() {
   return (
     <section
       id="waitlist"
-      className="px-4 md:px-16 py-16 md:py-20 max-w-[1440px] mx-auto fade-in-up delay-200"
+      className="px-4 md:px-16 py-16 md:py-20 max-w-[1440px] mx-auto scroll-mt-16 md:scroll-mt-20 fade-in-up delay-200"
     >
       <div className="max-w-xl mx-auto text-center space-y-6">
         {/* Live Social Proof Pill */}

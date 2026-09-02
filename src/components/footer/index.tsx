@@ -11,6 +11,19 @@ export default function Footer() {
     if (pathname === '/') {
       e.preventDefault();
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.history.pushState(null, '', window.location.pathname);
+    }
+  };
+
+  const handleNavLinkClick = (e: React.MouseEvent, href: string) => {
+    if (pathname === '/' && href.startsWith('/#')) {
+      e.preventDefault();
+      const targetId = href.replace('/#', '');
+      const el = document.getElementById(targetId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        window.history.pushState(null, '', href);
+      }
     }
   };
 
@@ -44,6 +57,7 @@ export default function Footer() {
           <Link
             className="text-on-surface-variant hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary rounded px-2 py-1 hover:bg-white/[0.04] btn-tactile"
             href="/#features"
+            onClick={(e) => handleNavLinkClick(e, '/#features')}
           >
             Features
           </Link>
@@ -56,6 +70,7 @@ export default function Footer() {
           <Link
             className="text-on-surface-variant hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary rounded px-2 py-1 hover:bg-white/[0.04] btn-tactile"
             href="/#how-it-works"
+            onClick={(e) => handleNavLinkClick(e, '/#how-it-works')}
           >
             How it works
           </Link>

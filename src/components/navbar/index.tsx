@@ -23,12 +23,27 @@ export default function Navbar() {
     return false;
   };
 
-  // When clicking Forge on the landing page, smoothly scroll directly back to top
+  // When clicking Forge on the landing page, smoothly scroll directly back to top and clean URL
   const handleLogoClick = (e: React.MouseEvent) => {
     if (pathname === '/') {
       e.preventDefault();
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.history.pushState(null, '', window.location.pathname);
     }
+  };
+
+  // Handle in-page smooth scrolling cleanly and sync history state
+  const handleNavLinkClick = (e: React.MouseEvent, href: string) => {
+    if (pathname === '/' && href.startsWith('/#')) {
+      e.preventDefault();
+      const targetId = href.replace('/#', '');
+      const el = document.getElementById(targetId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        window.history.pushState(null, '', href);
+      }
+    }
+    setMobileMenuOpen(false);
   };
 
   const handleWaitlistClick = (e: React.MouseEvent) => {
@@ -63,6 +78,7 @@ export default function Navbar() {
                 <Link
                   key={link.label}
                   href={link.href}
+                  onClick={(e) => handleNavLinkClick(e, link.href)}
                   className={`px-3 py-1.5 rounded-md transition-all duration-150 btn-tactile ${
                     active
                       ? 'bg-white/[0.08] text-primary font-semibold'
@@ -118,7 +134,7 @@ export default function Navbar() {
             <Link
               key={link.label}
               href={link.href}
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={(e) => handleNavLinkClick(e, link.href)}
               className="block px-3 py-2 rounded text-sm text-on-surface hover:text-primary hover:bg-white/[0.04] transition-colors btn-tactile"
             >
               {link.label}
