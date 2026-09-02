@@ -1,13 +1,22 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import stats from '@/data/statistics.json';
-import testimonials from '@/data/testimonials.json';
-import projectsData from '@/data/projects.json';
-import { Project } from '@/types';
+import { useState, useRef, useEffect } from 'react';
+import { Project, Testimonial, PlatformStatistics } from '@/types';
 
-export default function SocialProof() {
-  const [projects, setProjects] = useState<Project[]>(projectsData as Project[]);
+interface SocialProofProps {
+  initialProjects?: Project[];
+  initialTestimonials?: Testimonial[];
+  initialStats?: PlatformStatistics;
+}
+
+export default function SocialProof({
+  initialProjects = [],
+  initialTestimonials = [],
+  initialStats = { projectsBuilt: 1240, communityMembers: 860, projectsDeployed: 970 },
+}: SocialProofProps) {
+  const [projects, setProjects] = useState<Project[]>(initialProjects);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(initialTestimonials);
+  const [stats, setStats] = useState<PlatformStatistics>(initialStats);
   const [activeProjectSlide, setActiveProjectSlide] = useState(0);
   const [activeTestimonialSlide, setActiveTestimonialSlide] = useState(0);
   const [userReactions, setUserReactions] = useState<{ [key: string]: { starred?: boolean; upvoted?: boolean } }>({});
@@ -15,44 +24,82 @@ export default function SocialProof() {
   const projectsScrollRef = useRef<HTMLDivElement>(null);
   const testimonialsScrollRef = useRef<HTMLDivElement>(null);
 
-  const toggleStar = (projectId: string) => {
-    setUserReactions((prev) => {
-      const current = prev[projectId]?.starred || false;
-      return {
-        ...prev,
-        [projectId]: { ...prev[projectId], starred: !current },
-      };
-    });
+  // If initial data wasn't passed, fetch from backend API
+  useEffect(() => {
+    if (projects.length === 0 || testimonials.length === 0) {
+      fetch('/api/community')
+        .then((res) => res.json())
+        .then((payload) => {
+          if (payload.success && payload.data) {
+            if (payload.data.projects) setProjects(payload.data.projects);
+            if (payload.data.testimonials) setTestimonials(payload.data.testimonials);
+            if (payload.data.stats) setStats(payload.data.stats);
+          }
+        })
+        .catch((err) => console.warn('Could not fetch community data from API:', err));
+    }
+  }, [projects.length, testimonials.length]);
+
+  const toggleStar = async (projectId: string) => {
+    const isCurrentlyStarred = userReactions[projectId]?.starred || false;
+    const delta = isCurrentlyStarred ? -1 : 1;
+
+    // Optimistic UI update
+    setUserReactions((prev) => ({
+      ...prev,
+      [projectId]: { ...prev[projectId], starred: !isCurrentlyStarred },
+    }));
 
     setProjects((prev) =>
       prev.map((p) => {
         if (p.id === projectId) {
-          const isStarred = userReactions[projectId]?.starred;
-          return { ...p, stars: isStarred ? p.stars - 1 : p.stars + 1 };
+          return { ...p, stars: Math.max(0, p.stars + delta) };
         }
         return p;
       })
     );
+
+    // Sync with backend API
+    try {
+      await fetch('/api/community', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ projectId, type: 'star', delta }),
+      });
+    } catch (err) {
+      console.error('Failed to sync star reaction with backend:', err);
+    }
   };
 
-  const toggleUpvote = (projectId: string) => {
-    setUserReactions((prev) => {
-      const current = prev[projectId]?.upvoted || false;
-      return {
-        ...prev,
-        [projectId]: { ...prev[projectId], upvoted: !current },
-      };
-    });
+  const toggleUpvote = async (projectId: string) => {
+    const isCurrentlyUpvoted = userReactions[projectId]?.upvoted || false;
+    const delta = isCurrentlyUpvoted ? -1 : 1;
+
+    // Optimistic UI update
+    setUserReactions((prev) => ({
+      ...prev,
+      [projectId]: { ...prev[projectId], upvoted: !isCurrentlyUpvoted },
+    }));
 
     setProjects((prev) =>
       prev.map((p) => {
         if (p.id === projectId) {
-          const isUpvoted = userReactions[projectId]?.upvoted;
-          return { ...p, upvotes: isUpvoted ? p.upvotes - 1 : p.upvotes + 1 };
+          return { ...p, upvotes: Math.max(0, p.upvotes + delta) };
         }
         return p;
       })
     );
+
+    // Sync with backend API
+    try {
+      await fetch('/api/community', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ projectId, type: 'upvote', delta }),
+      });
+    } catch (err) {
+      console.error('Failed to sync upvote reaction with backend:', err);
+    }
   };
 
   const handleProjectsScroll = () => {

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { validateEmail } from '@/lib/validation';
+import { useState } from 'react';
 
 export default function WaitlistForm() {
   const [email, setEmail] = useState('');

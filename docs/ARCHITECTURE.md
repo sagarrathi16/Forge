@@ -7,66 +7,63 @@ Forge is a developer platform landing application that aims to help aspiring dev
 **Choose an idea → Develop your project → Deploy your project → Share your project**
 
 The architecture of the application is divided into two main subsystems:
-1. **Frontend Application**: Multi-page Next.js web application responsible for the primary landing page, templates page ([/templates](src/app/templates/page.tsx)), and builds community page ([/community](src/app/community/page.tsx)).
-2. **Backend API & Data Tier**: Next.js Route Handler (`POST /api/waitlist`) linked with Supabase (PostgreSQL) that implements Row Level Security (RLS) for waitlist data management and validation.
+1. **Frontend Application**: Multi-page Next.js web application responsible for the primary landing page (`/`), templates page ([/templates](src/app/templates/page.tsx)), and dynamic community showcase page ([/community](src/app/community/page.tsx)).
+2. **Backend API & Data Tier**: Next.js Route Handlers (`POST /api/waitlist`, `GET /api/templates`, `GET /api/community`, and `POST /api/community`) connected directly to Supabase (PostgreSQL) implementing Row Level Security (RLS) for waitlist capture, starter templates, community projects, and live star/upvote reactions.
 
-The architecture is focused on providing great product UX, aesthetic design, responsiveness, performance, and server-side input validation.
+The architecture is focused on providing great product UX, aesthetic design, responsiveness, performance, zero hardcoded JSON data, and server-side input validation.
+
 ---
 
 ## 2. Tech Stack & Justification
 
 ### Frontend Layer
-- **Next.js 16 (App Router)**: Performs server side rendering (SSR), static page generation (SSG), file-based routing and API route handlers within one consistent framework.
-- **TypeScript**: Performs strict compile time type safety checks for component properties, static data types and API payloads.
-- **Tailwind CSS v4**: Utility based CSS framework that is customized with custom theme variables in order to provide dark mode high-density charcoal look and feel with technical stroke borders and electric indigo primary colors.
+- **Next.js 16 (App Router)**: Performs server-side rendering (SSR), dynamic data fetching, file-based routing and API route handlers within one consistent framework.
+- **TypeScript**: Performs strict compile-time type safety checks for component properties, data models, and API payloads.
+- **Tailwind CSS v4**: Utility-based CSS framework customized with semantic design system tokens providing a dark-mode high-density charcoal aesthetic with technical stroke borders and electric indigo accents.
 
 ### Backend Layer
-- **Next.js Route Handler**: `/api/waitlist POST` processes JSON requests, performs server side validations, queries Supabase and returns standard HTTP status codes (`201`, `400`, `409`, `500`).
+- **Next.js Route Handlers**:
+  - `POST /api/waitlist`: processes email submissions, performs RFC 5322 validation, inserts into Supabase, and returns standard HTTP status codes (`201`, `400`, `409`, `500`).
+  - `GET /api/templates`: retrieves starter kit templates dynamically from PostgreSQL.
+  - `GET /api/community`: retrieves community projects, verified builder testimonials, and platform statistics dynamically from PostgreSQL.
+  - `POST /api/community`: processes live reaction increments (stars and upvotes) with database persistence.
 
-### Database Layer & Security
-- **PostgreSQL (via Supabase)**: Persistently stores waitlist requests in `public.waitlist` table using a unique index `LOWER(email)`.
-- **Row Level Security (RLS)**: Ensures database security policies that only allow public anonymous inserts and restrict SELECT queries to `service_role` administrators.
-
-### Static Data Tier
-Product content that does not require database persistence is maintained as local JSON files in `src/data/`:
-- `features.json` — Core platform capabilities
-- `templates.json` — Starter kit templates & CLI commands
-- `projects.json` — Community showcase builds & reaction stats
-- `statistics.json` — Platform metric counters
-- `testimonials.json` — Developer quotes & roles
-- `navigation.json` — Header & footer link metadata
+### Database Layer & Security (Supabase PostgreSQL)
+- **`public.waitlist`**: Stores waitlist emails using a case-insensitive unique index `LOWER(email)`.
+- **`public.templates`**: Stores starter kit definitions, categories, tech tags, and CLI scaffolding commands.
+- **`public.community_projects`**: Stores community builds, tech tags, demo links, star counts, and upvotes.
+- **`public.community_testimonials`**: Stores verified developer testimonials and feedback.
+- **`public.community_stats`**: Stores platform metric counters (`projects_built`, `community_members`, `projects_deployed`).
+- **Row Level Security (RLS)**: Public anonymous visitors are permitted to read templates, community projects, testimonials, stats, and submit waitlist entries, while waitlist reads are strictly restricted to `service_role` administrators.
 
 ---
 
 ## 3. High-Level System Architecture
 
 ```text
-┌───────────────────────────────────────────────────────────────────┐
-│                           User Browser                            │
-│                                                                   │
-│  Landing Page (/)    Templates (/templates)   Community (/community) │
-└─────────────────────────────────┬─────────────────────────────────┘
-                                  │
-                   ┌──────────────┴──────────────┐
-                   │                             │
-                   ▼                             ▼
-      ┌──────────────────────────┐   ┌──────────────────────────┐
-      │ Static JSON Data Modules │   │  Interactive Form UI     │
-      │ (templates, projects)    │   │  (Client-side validation)│
-      └──────────────────────────┘   └────────────┬─────────────┘
-                                                  │
-                                                  │ POST /api/waitlist
-                                                  ▼
-                                     ┌──────────────────────────┐
-                                     │ Next.js Route Handler    │
-                                     │ (Server-side validation) │
-                                     └────────────┬─────────────┘
-                                                  │
-                                                  ▼
-                                     ┌──────────────────────────┐
-                                     │  Supabase (PostgreSQL)   │
-                                     │  RLS Table: waitlist     │
-                                     └──────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────┐
+│                              User Browser                              │
+│                                                                        │
+│   Landing Page (/)     Templates (/templates)   Community (/community) │
+└──────────────┬───────────────────────┬─────────────────────────┬───────┘
+               │                       │                         │
+               │ GET /api/templates    │ GET /api/community      │ POST /api/waitlist
+               ▼                       ▼                         ▼
+  ┌────────────────────────┐  ┌────────────────────────┐  ┌────────────────────────┐
+  │  Templates API Route   │  │  Community API Route   │  │   Waitlist API Route   │
+  │   (GET /api/templates) │  │  (GET/POST /api/comm)  │  │  (Server-side valid.)  │
+  └────────────┬───────────┘  └────────────┬───────────┘  └────────────┬───────────┘
+               │                           │                           │
+               ▼                           ▼                           ▼
+  ┌────────────────────────────────────────────────────────────────────────────────┐
+  │                             Supabase (PostgreSQL)                              │
+  │                                                                                │
+  │  • public.waitlist                 (RLS: anon insert, service_role read)       │
+  │  • public.templates                (RLS: anon public read)                     │
+  │  • public.community_projects       (RLS: anon public read, reaction update)    │
+  │  • public.community_testimonials   (RLS: anon public read)                     │
+  │  • public.community_stats          (RLS: anon public read)                     │
+  └────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -82,197 +79,214 @@ src/
 │   ├── templates/
 │   │   └── page.tsx              # Dedicated Starter Kits page (/templates)
 │   ├── community/
-│   │   └── page.tsx              # Dedicated Community Showcase page (/community)
+│   │   └── page.tsx              # Dedicated dynamic Community Showcase (/community)
 │   └── api/
-│       └── waitlist/
-│           └── route.ts          # Waitlist API endpoint (POST)
+│       ├── waitlist/
+│       │   └── route.ts          # Waitlist API endpoint (POST)
+│       ├── templates/
+│       │   └── route.ts          # Templates API endpoint (GET)
+│       └── community/
+│           └── route.ts          # Community API endpoint (GET, POST)
 │
 ├── components/
-│   ├── navbar/                   # Navigation header with routing links
-│   ├── hero/                     # Main headline & forge-cli terminal card
-│   ├── features/                 # Core capabilities grid
+│   ├── navbar/                   # Navigation header with routing & hash cleanup
+│   ├── hero/                     # Main headline & multi-tab terminal
+│   ├── features/                 # Core capabilities grid & mobile snap slider
 │   ├── templates/                # Interactive templates grid & category filters
 │   ├── audience/                 # Value prop breakdown (Who, Why, Difference)
-│   ├── how-it-works/             # 4-step process guide
-│   ├── social-proof/             # Community builds grid & statistics
-│   ├── waitlist/                 # Form state management & API integration
-│   └── footer/                   # Footer links & copyright
-│
-├── data/
-│   ├── features.json
-│   ├── templates.json
-│   ├── projects.json
-│   ├── statistics.json
-│   └── navigation.json
+│   ├── how-it-works/             # 4-step process guide & mobile snap slider
+│   ├── social-proof/             # Dynamic community showcase & live reactions
+│   ├── waitlist/                 # Form state management, spinner & pulse animation
+│   └── footer/                   # Footer links & status indicators
 │
 ├── lib/
-│   ├── db.ts                     # Supabase REST client interface & fallback
+│   ├── db.ts                     # Supabase REST client & in-memory fallbacks
+│   ├── navigation.ts             # Smooth animated scroll utilities
 │   └── validation.ts             # RFC 5322 email regex validation logic
 │
-├── types/
-│   └── index.ts                  # TypeScript definitions
-│
-└── __tests__/
-    ├── validation.test.ts        # Vitest unit tests for validation
-    └── waitlist-api.test.ts      # Vitest integration tests for API route
+└── types/
+    └── index.ts                  # Shared TypeScript interfaces
 ```
 
 ### Components Breakdown
 
 #### Navbar (`src/components/navbar/index.tsx`)
 - Offers sticky header navigation, branding (Forge), links (`Features`, `Templates`, `How it works`, `Community`), and primary waitlist CTA button.
-- Mobile navigation layout.
+- Clean URL state management: clicking the logo smoothly scrolls to top and clears any existing anchor hashes (`#features`, `#how-it-works`) from the browser address bar.
+- Interactive mobile navigation drawer with animated hamburger toggle and operational status indicator.
 
 #### Hero (`src/components/hero/index.tsx`)
 - Shows the main product tagline ("*From 'I have an idea' to 'I built it.'*") displayed clearly over two lines.
-- Supporting product text, primary CTA ("*Join the waitlist*"), and secondary CTA ("*See how it works*").
-- Interactive `code terminal` card displaying `forge-cli` command line (`forge init`/`forge deploy`) and live output preview.
+- Supporting product text, primary CTA ("*Join the waitlist*") triggering smooth animated scroll and input pulse highlight, and secondary CTA ("*See how it works*").
+- Multi-command interactive terminal preview supporting tab switching across CLI workflows (`init`, `test`, `deploy`) with one-click copy feedback.
 
 #### Capabilities / Features (`src/components/features/index.tsx`)
 - Shows 4 capabilities cards with Material Symbols (`auto_awesome_mosaic`, `smart_toy`, `rocket_launch`, `forum`) and numbered badges (`01` - `04`).
+- Full-width background wrapper with `scroll-mt-16 md:scroll-mt-20` for sticky navbar offset clearance.
+- Responsive horizontal snap slider on mobile devices with indicator pagination dots.
 
 #### Templates Page & Component (`src/app/templates/page.tsx` & `src/components/templates/index.tsx`)
-- Independent page route serving production-ready starter kits.
+- Dedicated dynamic route serving production-ready starter kits fetched directly from Supabase PostgreSQL (`public.templates`).
 - Interactive category filter tabs (`All`, `Full-Stack`, `Frontend`, `AI / ML`, `Systems`).
-- Copyable `forge-cli` commands with visual feedback.
+- One-click copyable `forge init` CLI commands with tactile visual feedback.
 
 #### Audience & Value Proposition (`src/components/audience/index.tsx`)
 - 3-column explanation of *Who it is for* (Builders with Ideas), *Why use it* (Frictionless Flow), and *What's different* (Ship, Not Just Learn).
+- Mobile-friendly horizontal snap slider with indicator dots.
 
 #### How It Works (`src/components/how-it-works/index.tsx`)
-- Explanation of the 4-step user process: `1. Choose your path` → `2. Build` → `3. Deploy` → `4. Share`.
+- Explanation of the 4-step user process: `1. Pick a path` → `2. Build & Iterate` → `3. Zero-Config Deploy` → `4. Share & Grow`.
+- Simulated CLI execution chips for each step.
+- Full-width background wrapper with `scroll-mt-16 md:scroll-mt-20` offset alignment and mobile horizontal snap scrolling.
 
 #### Community Showcase Page & Component (`src/app/community/page.tsx` & `src/components/social-proof/index.tsx`)
-- Community showcase page showing platform statistics, projects that developers built and contributed to (*DevPulse*, *PixelCraft*, *EchoDB*, *AgentFlow*, *HyperScale*, *TaskCraft*), demo links, star & upvote count, and verified testimonials from developers.
+- Dynamic community showcase page backed by Supabase PostgreSQL (`public.community_projects`, `public.community_testimonials`, `public.community_stats`).
+- Platform metric counters: Projects Scaffolded (`1,240+`), Active Builders (`860+`), Edge Deployments (`970+`).
+- Community shared builds with live interactive star (`★`) and upvote (`▲`) buttons that sync state directly to the database via `POST /api/community`.
+- Verified builder testimonials.
 
 #### Waitlist Form (`src/components/waitlist/index.tsx`)
-- Email signup form with client-side regex validation, loading button state (`Joining...`) and dynamic feedback banners (*Success*, *Duplicate*, *Error*).
+- Email signup form with dual-layer validation (client RFC 5322 regex + server validation).
+- Animated loading spinner during submission, live recent builder social proof counter, and dynamic feedback banners (*Success*, *Duplicate*, *Error*).
+- Highlight pulse keyframe animation (`.pulse-highlight`) triggered when navigating from external CTA buttons.
 
 #### Footer (`src/components/footer/index.tsx`)
-- Navigation items, legal & privacy policy placeholders
+- Sticky-bottom branding, operational status badge, direct navigation links, and copyright metadata.
+
 ---
 
-## 5. Waitlist API & Backend Architecture
+## 5. API Specifications & Endpoints
 
-The waitlist backend handles incoming POST requests to `/api/waitlist`.
+### 1. Waitlist API (`POST /api/waitlist`)
+- **Request**: `{ "email": "developer@example.com" }`
+- **Responses**:
+  - `201 Created`: `{ "success": true, "message": "Successfully joined the waitlist!" }`
+  - `400 Bad Request`: `{ "success": false, "error": "Please enter a valid email address." }`
+  - `409 Conflict`: `{ "success": false, "error": "This email address is already on the waitlist." }`
+  - `500 Internal Error`: `{ "success": false, "error": "Internal server error. Please try again later." }`
 
-### HTTP Request Payload
-```http
-POST /api/waitlist
-Content-Type: application/json
+### 2. Templates API (`GET /api/templates`)
+- **Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "data": [
+      {
+        "id": "react-supabase",
+        "title": "React + Supabase Fullstack",
+        "description": "Production-ready starter with authentication, database RLS, and real-time data sync.",
+        "category": "Full-Stack",
+        "tags": ["React", "Supabase", "TypeScript", "Tailwind"],
+        "badge": "Popular",
+        "cliCommand": "forge init --template react-supabase"
+      }
+    ]
+  }
+  ```
 
-{
-  "email": "developer@example.com"
-}
-```
+### 3. Community API (`GET /api/community`)
+- **Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "data": {
+      "projects": [ ... ],
+      "testimonials": [ ... ],
+      "stats": { "projectsBuilt": 1240, "communityMembers": 860, "projectsDeployed": 970 }
+    }
+  }
+  ```
 
-### HTTP Response Specifications
-
-#### 1. Success (`201 Created`)
-```json
-{
-  "success": true,
-  "message": "You have been successfully added to the waitlist!"
-}
-```
-
-#### 2. Invalid Input (`400 Bad Request`)
-```json
-{
-  "success": false,
-  "error": "Please enter a valid email address."
-}
-```
-
-#### 3. Duplicate Email (`409 Conflict`)
-```json
-{
-  "success": false,
-  "error": "This email address is already on the waitlist."
-}
-```
-
-#### 4. Internal Error (`500 Internal Server Error`)
-```json
-{
-  "success": false,
-  "error": "Internal server error. Please try again later."
-}
-```
-
-### Data Flow Diagram
-
-```text
-User Submits Email
-       │
-       ▼
-Client Validation (validation.ts)
-       │
-       ├── invalid → Show instant client error
-       │
-       └── valid
-             │
-             ▼
-POST /api/waitlist Route Handler
-       │
-       ▼
-Server Validation (RFC 5322 regex)
-       │
-       ├── invalid → Return 400 Bad Request
-       │
-       └── valid
-             │
-             ▼
-Supabase REST API (db.ts)
-       │
-       ├── unique constraint violation (23505) → Return 409 Conflict
-       │
-       ├── database error → Return 500 Internal Server Error
-       │
-       └── inserted successfully → Return 201 Created
-             │
-             ▼
-Update Form UI State & Display Banners
-```
+### 4. Community Reaction API (`POST /api/community`)
+- **Request**: `{ "projectId": "1", "type": "star", "delta": 1 }`
+- **Response (`200 OK`)**: `{ "success": true }`
 
 ---
 
 ## 6. Database Schema & Row Level Security (RLS)
 
-The persistent database tier is powered by Supabase (PostgreSQL).
+All database entities are managed in Supabase PostgreSQL with strict Row Level Security policies:
 
-### Table Schema DDL
 ```sql
+-- 1. Waitlist Table
 CREATE TABLE IF NOT EXISTS public.waitlist (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email TEXT UNIQUE NOT NULL,
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL
 );
-```
-
-### Case-Insensitive Unique Index
-```sql
 CREATE UNIQUE INDEX IF NOT EXISTS waitlist_email_unique_idx ON public.waitlist (LOWER(email));
-```
-
-### Row Level Security Policies
-```sql
--- Enable RLS
 ALTER TABLE public.waitlist ENABLE ROW LEVEL SECURITY;
 
--- Policy 1: Allow public (anon + authenticated) to submit waitlist emails
 CREATE POLICY "Allow public waitlist submissions"
-  ON public.waitlist
-  FOR INSERT
-  TO anon, authenticated
+  ON public.waitlist FOR INSERT TO anon, authenticated
   WITH CHECK (length(trim(email)) > 0);
 
--- Policy 2: Restrict SELECT queries exclusively to service_role (admins)
 CREATE POLICY "Restrict select to service role"
-  ON public.waitlist
-  FOR SELECT
-  TO service_role
-  USING (true);
+  ON public.waitlist FOR SELECT TO service_role USING (true);
+
+-- 2. Starter Kit Templates Table
+CREATE TABLE IF NOT EXISTS public.templates (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
+  category TEXT NOT NULL,
+  tags TEXT[] NOT NULL DEFAULT '{}',
+  badge TEXT,
+  cli_command TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL
+);
+ALTER TABLE public.templates ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read templates"
+  ON public.templates FOR SELECT TO anon, authenticated USING (true);
+
+-- 3. Community Projects Table
+CREATE TABLE IF NOT EXISTS public.community_projects (
+  id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
+  author TEXT NOT NULL,
+  role TEXT NOT NULL,
+  tags TEXT[] NOT NULL DEFAULT '{}',
+  stars INTEGER NOT NULL DEFAULT 0,
+  upvotes INTEGER NOT NULL DEFAULT 0,
+  demo_url TEXT,
+  github_url TEXT,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL
+);
+ALTER TABLE public.community_projects ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read community projects"
+  ON public.community_projects FOR SELECT TO anon, authenticated USING (true);
+
+CREATE POLICY "Allow public update reactions"
+  ON public.community_projects FOR UPDATE TO anon, authenticated USING (true) WITH CHECK (true);
+
+-- 4. Community Testimonials Table
+CREATE TABLE IF NOT EXISTS public.community_testimonials (
+  id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  quote TEXT NOT NULL,
+  author TEXT NOT NULL,
+  role TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL
+);
+ALTER TABLE public.community_testimonials ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read testimonials"
+  ON public.community_testimonials FOR SELECT TO anon, authenticated USING (true);
+
+-- 5. Community Stats Table
+CREATE TABLE IF NOT EXISTS public.community_stats (
+  id TEXT PRIMARY KEY DEFAULT 'default',
+  projects_built INTEGER NOT NULL DEFAULT 1240,
+  community_members INTEGER NOT NULL DEFAULT 860,
+  projects_deployed INTEGER NOT NULL DEFAULT 970,
+  updated_at TIMESTAMPTZ DEFAULT now() NOT NULL
+);
+ALTER TABLE public.community_stats ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read community stats"
+  ON public.community_stats FOR SELECT TO anon, authenticated USING (true);
 ```
 
 ---
@@ -286,7 +300,7 @@ The waitlist form component uses an explicit state machine to handle visual feed
             │
             │ Submit Form
             ▼
-     [ SUBMITTING ]  ---> Button disabled, text "Joining..."
+     [ SUBMITTING ]  ---> Button disabled, spinner active, text "Joining..."
             │
       POST /api/waitlist
             │
@@ -297,7 +311,7 @@ Success  Invalid Duplicate        Server Error
    │        │        │                │
    ▼        ▼        ▼                ▼
 SUCCESS   ERROR    DUPLICATE       ERROR UI
-Message  Message   Message        & Retry path
+Banner   Banner   Banner          & Retry
 ```
 
 ---
@@ -305,37 +319,47 @@ Message  Message   Message        & Retry path
 ## 8. Responsive Architecture & Accessibility (WCAG)
 
 ### Responsive Breakpoints
-- **Desktop** (`≥ 1440px`): Full 12-column grid layout, 64px margins, code terminal preview alongside headline.
-- **Tablet** (`768px - 1024px`): 2-column feature and template grids, collapsible navigation.
-- **Mobile** (`< 768px`): Single column stacked layout, 16px margins, touch target sizes $\ge 44\text{px}$.
+- **Desktop (`≥ 1440px`)**: Full 12-column multi-card technical grid layout, 64px horizontal margins, interactive multi-tab terminal preview alongside headline.
+- **Tablet (`768px - 1024px`)**: 2-column feature and template grids, collapsible navigation.
+- **Mobile (`< 768px`)**:
+  - Horizontal swipeable snap sliders (`overflow-x-auto snap-x snap-mandatory scrollbar-none`) with card peek margins (`min-w-[82vw]` to `min-w-[84vw]`), eliminating vertical scroll fatigue.
+  - Interactive pagination dot indicators reflecting current active slide.
+  - Sticky navbar offset alignment via `scroll-mt-16 md:scroll-mt-20`.
+  - Accessible touch target sizes $\ge 44\text{px}$.
+  - Mobile slide-down navigation drawer.
 
 ### Accessibility Standards
-- **Semantic Structure**: Built using `<header>`, `<main>`, `<section>`, `<footer>`, `<nav>`, and `<form>`.
-- **Keyboard Usability**: All buttons and links feature visible focus rings (`focus-visible:ring-2 focus-visible:ring-primary`).
-- **Screen Reader Support**: Form feedback banners use `role="status"` and `role="alert"` for ARIA announcements.
-- **Reduced Motion**: Animations (`.fade-in-up`) respect `prefers-reduced-motion`.
+- **Semantic Structure**: Built strictly with `<header>`, `<main>`, `<section>`, `<footer>`, `<nav>`, and `<form>`.
+- **Keyboard Usability**: All interactive buttons, tabs, and links feature visible focus rings (`focus-visible:ring-2 focus-visible:ring-primary`).
+- **Screen Reader Support**: Form feedback banners use `role="status"` and `role="alert"` for live ARIA announcements.
+- **Reduced Motion**: All animations (`.fade-in-up`, `.pulse-highlight`) respect `prefers-reduced-motion: reduce`.
 
 ---
 
 ## 9. Performance & Rendering Strategy
 
-- **Static Page Generation (SSG)**: Landing page (`/`), Templates (`/templates`), and Community (`/community`) are pre-rendered at build time.
-- **Minimal Dependencies**: Avoided heavy component libraries or unnecessary UI frameworks.
-- **Turbopack Build**: Application compiles production builds in under 400ms.
+- **Hybrid Rendering**: Static pre-rendering for the landing page with dynamic server rendering for real-time templates and community showcases.
+- **Zero Static JSON Files**: All business data is centralized in PostgreSQL via Supabase with fallback sets for resilient offline development.
+- **Turbopack Build**: Application compiles production builds in under 500ms.
 - **Font Optimization**: Google Fonts (`Inter`, `JetBrains Mono`) are loaded efficiently without blocking paint.
 
 ---
 
 ## 10. Automated Testing Architecture
 
-Testing is implemented using **Vitest**:
-- **Unit Tests** (`src/__tests__/validation.test.ts`): Tests email validation logic for valid, malformed, empty, whitespace, and over-length strings.
-- **API Integration Tests** (`src/__tests__/waitlist-api.test.ts`): Tests Next.js Route Handler HTTP responses (`201 Created`, `400 Bad Request`, `409 Conflict`).
+Testing is automated using **Vitest** (`npm run test`):
+- `src/__tests__/validation.test.ts` (6 tests): RFC 5322 email regex validation unit tests.
+- `src/__tests__/waitlist-api.test.ts` (4 tests): Waitlist API HTTP status integration tests (`201`, `400`, `409`).
+- `src/__tests__/templates-api.test.ts` (1 test): Templates API HTTP status and structure integration test (`200`).
+- `src/__tests__/community-api.test.ts` (3 tests): Community API integration tests (`GET 200`, `POST 400`, `POST 200`).
 
 ---
 
 ## 11. Deployment Architecture
 
 - **Hosting**: Deployed on Vercel Edge Network.
-- **Database**: Connected via Supabase REST API & PostgreSQL pool.
-- **Environment Configuration**: Secrets managed via `.env` variables (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`).
+- **Database**: Connected via Supabase REST API & PostgreSQL connection pool.
+- **Environment Configuration**: Managed via environment variables:
+  - `NEXT_PUBLIC_SUPABASE_URL`
+  - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+  - `SUPABASE_SERVICE_ROLE_KEY`

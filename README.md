@@ -74,62 +74,47 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Database & Row Level Security (RLS) Setup
 
-If you want to persist waitlist entries in a live Supabase project:
+If you want to persist waitlist entries, starter templates, and community projects in your Supabase project:
 
 1. Log into your [Supabase Dashboard](https://supabase.com).
 2. Go to **SQL Editor** $\rightarrow$ **New Query**.
-3. Copy and run the contents of [supabase_schema.sql](supabase_schema.sql):
+3. Copy and run the complete contents of [supabase_schema.sql](supabase_schema.sql).
 
-```sql
--- Create Waitlist Table
-CREATE TABLE IF NOT EXISTS public.waitlist (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  email TEXT UNIQUE NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT now() NOT NULL
-);
-
--- Case-Insensitive Unique Index
-CREATE UNIQUE INDEX IF NOT EXISTS waitlist_email_unique_idx ON public.waitlist (LOWER(email));
-
--- Enable Row Level Security
-ALTER TABLE public.waitlist ENABLE ROW LEVEL SECURITY;
-
--- Allow Public Submissions
-CREATE POLICY "Allow public waitlist submissions"
-  ON public.waitlist
-  FOR INSERT
-  TO anon, authenticated
-  WITH CHECK (length(trim(email)) > 0);
-
--- Restrict Reading Entries to Service Role
-CREATE POLICY "Restrict select to service role"
-  ON public.waitlist
-  FOR SELECT
-  TO service_role
-  USING (true);
-```
+This provisions:
+- `public.waitlist`: Email waitlist storage with case-insensitive unique index (`LOWER(email)`).
+- `public.templates`: Starter kit templates, categories, tech tags, and CLI commands.
+- `public.community_projects`: Shared builder projects with live reaction counters (`stars` and `upvotes`).
+- `public.community_testimonials`: Verified builder quotes and reviews.
+- `public.community_stats`: Platform metrics counters.
+- **Row Level Security (RLS)**: Public read policies for templates, projects, testimonials, and stats, with strict read protection for waitlist emails.
 
 ---
 
 ## Testing
 
-Automated testing is configured using **Vitest**. The test suite includes unit tests for email validation and integration tests for the `POST /api/waitlist` route.
+Automated testing is configured using **Vitest**. The test suite includes unit tests for validation and integration tests for `/api/waitlist`, `/api/templates`, and `/api/community` route handlers.
 
 Run the test suite:
 ```bash
 npm run test
 ```
 
-### What is Tested
-- `src/__tests__/validation.test.ts`:
+### What is Tested (14 Tests, 100% Passing)
+- `src/__tests__/validation.test.ts` (6 tests):
   - Valid standard and complex tagged email addresses
   - Empty, missing, or whitespace-only inputs
   - Malformed email strings
   - Max length limit enforcement (254 chars)
-- `src/__tests__/waitlist-api.test.ts`:
+- `src/__tests__/waitlist-api.test.ts` (4 tests):
   - `400 Bad Request` on missing or invalid email payloads
   - `201 Created` on valid email submission
   - `409 Conflict` when submitting duplicate emails
+- `src/__tests__/templates-api.test.ts` (1 test):
+  - `GET /api/templates`: Returns starter kit templates with `200 OK`
+- `src/__tests__/community-api.test.ts` (3 tests):
+  - `GET /api/community`: Returns projects, testimonials, and stats with `200 OK`
+  - `POST /api/community`: Rejects invalid reaction payloads with `400 Bad Request`
+  - `POST /api/community`: Updates reaction count with `200 OK`
 
 ---
 

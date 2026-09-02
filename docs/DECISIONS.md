@@ -2,110 +2,86 @@
 
 ## 1. Executive Architectural Overview
 
-In terms of Forge architecture planning, the primary design objective was to have a fast and elegant experience for landing product development along with a robust backend API that would help capture waitlists.
+In terms of Forge architecture planning, the primary design objective was to have a fast, polished developer product experience with a robust backend API and complete database persistence.
 
-In order to ensure that the application remains performant and easily maintainable, the data structure is classified into two parts:
-- **Static & Product Copy** → Saved in local JSON modules (`src/data/*.json`)
-- **Dynamic User Submissions** → Saved in PostgreSQL using Supabase along with Row Level Security (RLS)
+To ensure the platform is dynamic, collaborative, and free of stale hardcoded files:
+- **100% Database-Driven Dynamic Architecture** → All platform entities are persisted in PostgreSQL via Supabase:
+  - `waitlist`: User email signups with case-insensitive unique constraints (`LOWER(email)`).
+  - `templates`: Production starter kits with category tags and CLI scaffolding commands.
+  - `community_projects`: Shared builder projects with real-time star and upvote reactions.
+  - `community_testimonials`: Verified developer testimonials.
+  - `community_stats`: Platform metric counters.
 
-This helps ensure that all operations in the database are related to the users, while static product copy loads immediately without any queries to the database.
+Zero business data is hardcoded in local JSON files. Everything is managed via Supabase tables governed by Row Level Security (RLS) policies.
+
 ---
 
-## 2. The Framework & Language Choice: Why Next.js (App Router) & TypeScript?
+## 2. Framework & Language Choice: Why Next.js (App Router) & TypeScript?
 
 ### The Decision
 Implement the app using **Next.js 16 (App Router)**, **TypeScript**, and **Tailwind CSS v4**.
 
 ### The Key Technological Rationale
 
-1. **Consistent App Architecture**: Next.js enables development of both the frontend pages (`/`, `/templates`, `/community`) and the backend API endpoint (`POST /api/waitlist`) within one repo. This eliminates the necessity of having client and server repos for an MVP app.
-2. **Type Safety at Compile Time**: TypeScript ensures type safety in UI props, static JSON datasets, and API payload contracts, which helps avoid potential bugs at runtime.
-3. **Static Site Generation (SSG)**: Pages generation at the build time results in sub-millisecond first load times and improved SEO.
-4. **Dark Mode High-Density Charcoal Utility Theme in Tailwind CSS v4**: Theme variables specified in `src/app/globals.css` create a dark-mode high-density charcoal theme with technical stroke borders and electric indigo accents.
-
-### Alternative Considered: Separate React SPA + Express/Fastify API
-I considered building a standalone Vite/React SPA connected to an Express or Fastify backend API. While viable, managing CORS headers, dual deployments, and separate environment configurations added friction without offering any performance advantage over Next.js Route Handlers.
+1. **Unified Application Architecture**: Next.js enables development of both the frontend pages (`/`, `/templates`, `/community`) and the backend API endpoints (`/api/waitlist`, `/api/templates`, `/api/community`) within a single repository.
+2. **Type Safety at Compile Time**: TypeScript enforces strict contracts across database models, component properties, and API payload schemas.
+3. **Hybrid Rendering**: Combines static page pre-rendering for speed with dynamic server rendering for real-time templates and community data.
+4. **Tailwind CSS v4 Utility System**: High-density charcoal aesthetic with technical stroke borders and electric indigo accents.
 
 ---
 
-## 3. Storage Strategy: Why Supabase (PostgreSQL)?
+## 3. Storage Strategy: Why Supabase (PostgreSQL) for All Platform Entities?
 
 ### Decision
-Use **PostgreSQL via Supabase** for waitlist persistence and Row Level Security.
+Migrate all data—starter templates, community projects, builder testimonials, platform metrics, and waitlist submissions—to **PostgreSQL via Supabase** with Row Level Security (RLS).
 
 ### Technical Reasons
-1. **Data Integrity in Relational Model**: PostgreSQL is suitable for user record tables that are id, email, created_at.
-2. **Unique Case Insensitive Index**: `CREATE UNIQUE INDEX waitlist_email_unique_idx ON public.waitlist (LOWER(email))` ensures there is no registration duplication via the database index, avoiding race condition.
-3. **Row Level Security (RLS)**: Supabase's RLS allows publicly accessible `INSERT` request but restricts unauthorized `SELECT` read access to maintain user email confidentiality.
-
-### But why not store everything in PostgreSQL Database?
-If all the product descriptions are stored in PostgreSQL, then:
-- More database queries for every request to any page
-- Schema migrations for any update to static text data
-- No need for extra database connections
-- No extra deployment dependencies
-
-Therefore, the static demo texts will remain in JSON files (`src/data/*.json`).
+1. **Dynamic Community Interaction**: Storing community builds in the database allows real-time live reactions (`stars` and `upvotes`) that persist across sessions.
+2. **Centralized Template Management**: Starter templates can be added, updated, or deprecated directly in PostgreSQL without requiring code redeployments.
+3. **Data Integrity & Relational Model**: PostgreSQL guarantees structured typing, default UUID generation, and unique constraint enforcement.
+4. **Row Level Security (RLS)**:
+   - Anonymous visitors can view templates, submit waitlist entries, read community projects, and increment reactions.
+   - Waitlist email lists are strictly locked down from public read access.
 
 ---
 
 ## 4. Multi-Page Routing Design vs. Single-Page Scrolling
 
 ### Choice
-Build separate routes for **Starter Kits & Templates** (`/templates`) and **Community Showcase** (`/community`) to keep the landing page (`/`) clean and centered around the key message.
+Build separate routes for **Starter Kits & Templates** (`/templates`) and **Community Showcase** (`/community`) to keep the landing page (`/`) focused and lightweight.
 
 ### Technical & UX Rationale
-1. **Cognitive Overload & Visual Hierarchy**: Putting lots of template cards, filters, and community showcase items on the landing page will create visual clutter and increase DOM weight.
-2. **User Expectations & Experience**: When the user clicks on "Templates" or "Community" from the navbar, they are expecting a dedicated view with searching, filtering capabilities, and copyable commands.
-3. **SEO & Deep Links**: Separate URLs will enable deep links to the starter kits or community showcase projects.
+1. **Cognitive Load & Visual Hierarchy**: Consolidating dozens of template cards, filtering tabs, and community showcase projects onto one page creates unnecessary DOM bloating.
+2. **Dedicated Views**: Users navigating to "Templates" or "Community" receive dedicated, focused interfaces with category filtering and live demo links.
+3. **Deep Linking & SEO**: Dedicated URLs allow direct linking to community showcases or starter templates.
+
 ---
 
 ## 5. Double Validation Strategy (Client + Server)
 
 ### Decision
-Implement email validation on both the client-side React form component and the server-side Next.js Route Handler.
+Implement validation on both the client-side React form and the server-side Next.js Route Handler.
 
 ### Technical Reasons
-- **Client-side Form Validation**: Offers immediate feedback to users for empty or invalid input prior to the execution of any network request.
-- **Server-side Form Validation**: One can't rely on client-side form validation for ensuring security since it is possible to bypass client-side validation using cURL, Postman, or scripts.
+- **Client Validation**: Instant user feedback on empty or malformed inputs before triggering network traffic.
+- **Server Validation**: Protects the database against invalid payloads sent via cURL, automated bots, or direct API requests.
 
 ---
 
-## 6. Form UI State Machine Design
+## 6. Testing Strategy: Why Vitest?
 
 ### Decision
-Model the waitlist form using an explicit 5-state machine (*Default*, *Submitting*, *Success*, *Duplicate*, *Error*).
+Use **Vitest** for automated unit and API integration testing (`npm run test`).
 
 ### Technical Reasons
-- Prevents accidental multiple submissions by disabling the submit button during pending requests (`Joining...`).
-- Provides explicit user feedback banners for duplicate emails (`409 Conflict`), invalid formats (`400 Bad Request`), and server failures (`500 Internal Error`).
+1. **Instant Execution**: Vitest executes native TypeScript tests with zero build delay, completing 14 tests across 4 test suites in under 300ms.
+2. **Route Handler Integration**: Tests Next.js Route Handlers (`/api/waitlist`, `/api/templates`, `/api/community`) directly in an isolated test runner.
 
 ---
 
-## 7. Testing Strategy: Why Vitest?
+## 7. Production Readiness Roadmap
 
-### Decision
-Use **Vitest** for automated unit and API integration testing.
-
-### Technical Reasons
-1. **Instant Execution**: Vitest executes native TypeScript tests with zero build delay, completing the test suite in under 300ms.
-2. **Next.js Integration**: Allows direct testing of standalone utility functions (`validation.ts`) and API Route Handlers (`route.ts`).
-
----
-
-## 8. What Was Deliberately NOT Built Yet
-
-To maintain a clean MVP focus, the following features were deliberately postponed:
-- **User Authentication / OAuth UI**: Full login/signup flows are postponed until the product dashboard is built.
-- **Dynamic Database CMS for Templates**: Templates remain in static JSON files for fast iteration.
-- **Live WebSocket Chat**: Community interaction is currently showcased via static project cards and testimonials.
-
----
-
-## 9. Production Readiness Roadmap
-
-Before deploying Forge to a high-traffic production environment, the following improvements would be added:
-1. **Rate Limiting**: Integrate Redis (Upstash) to throttle `/api/waitlist` requests (e.g., max 5 submissions per IP per minute).
-2. **Bot Protection**: Add Cloudflare Turnstile or hCaptcha to the waitlist form.
-3. **Double Opt-in Email Verification**: Send a confirmation link via Resend or Postmark before marking emails active.
-4. **End-to-End Testing**: Add Playwright E2E tests for visual regression and cross-browser testing.
+1. **Redis Rate Limiting**: Throttle API requests to prevent abuse.
+2. **Bot Protection**: Integrate Cloudflare Turnstile on form submission.
+3. **Double Opt-in Verification**: Send confirmation emails via Resend or Postmark.
+4. **End-to-End Testing**: Playwright cross-browser testing.

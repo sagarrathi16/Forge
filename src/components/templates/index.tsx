@@ -1,17 +1,33 @@
 'use client';
 
-import templatesData from '@/data/templates.json';
 import { Template } from '@/types';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
-export default function Templates() {
+interface TemplatesProps {
+  initialTemplates?: Template[];
+}
+
+export default function Templates({ initialTemplates = [] }: TemplatesProps) {
+  const [templates, setTemplates] = useState<Template[]>(initialTemplates);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [activeSlide, setActiveSlide] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const categories = ['All', 'Full-Stack', 'Frontend', 'AI / ML', 'Systems'];
-  const templates: Template[] = templatesData as Template[];
+
+  useEffect(() => {
+    if (templates.length === 0) {
+      fetch('/api/templates')
+        .then((res) => res.json())
+        .then((payload) => {
+          if (payload.success && Array.isArray(payload.data)) {
+            setTemplates(payload.data);
+          }
+        })
+        .catch((err) => console.warn('Could not fetch templates from API:', err));
+    }
+  }, [templates.length]);
 
   const filteredTemplates =
     selectedCategory === 'All'
