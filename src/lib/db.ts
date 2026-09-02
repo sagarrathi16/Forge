@@ -4,7 +4,7 @@
  * Reads credentials dynamically from process.env without hardcoding.
  */
 
-import { Template, Project, Testimonial, PlatformStatistics } from '@/types';
+import { PlatformStatistics, Project, Template, Testimonial } from '@/types';
 
 export interface WaitlistRecord {
   id?: string;

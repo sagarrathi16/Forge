@@ -13,6 +13,7 @@ export function animateScrollToWaitlist(e?: React.MouseEvent) {
 
   if (waitlistSection) {
     waitlistSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    window.history.pushState(null, '', '/#waitlist');
 
     if (waitlistForm) {
       waitlistForm.classList.remove('pulse-highlight');

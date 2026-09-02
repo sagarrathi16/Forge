@@ -25,6 +25,7 @@ export default function Hero() {
     e.preventDefault();
     const el = document.getElementById('how-it-works');
     el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.history.pushState(null, '', '/#how-it-works');
   };
 
   return (
