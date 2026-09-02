@@ -1,21 +1,21 @@
 'use client';
 
-import { validateEmail } from '@/lib/validation';
 import { useState } from 'react';
+import { validateEmail } from '@/lib/validation';
 
 export default function WaitlistForm() {
   const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'duplicate' | 'error'>('idle');
   const [message, setMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Client-side validation
     const validation = validateEmail(email);
     if (!validation.isValid) {
       setStatus('error');
-      setMessage(validation.error || 'Invalid email address.');
+      setMessage(validation.error || 'Please enter a valid email address.');
       return;
     }
 
@@ -31,13 +31,16 @@ export default function WaitlistForm() {
 
       const data = await res.json();
 
-      if (res.ok && data.success) {
+      if (res.status === 201 && data.success) {
         setStatus('success');
-        setMessage(data.message || 'Thank you for joining the Forge waitlist!');
+        setMessage(data.message || "Successfully joined the waitlist! We'll be in touch.");
         setEmail('');
+      } else if (res.status === 409) {
+        setStatus('duplicate');
+        setMessage(data.error || 'You are already on the waitlist!');
       } else {
         setStatus('error');
-        setMessage(data.error || 'Failed to join waitlist. Please try again.');
+        setMessage(data.error || 'Something went wrong. Please try again.');
       }
     } catch {
       setStatus('error');
@@ -46,48 +49,60 @@ export default function WaitlistForm() {
   };
 
   return (
-    <section id="waitlist" className="py-20">
-      <div className="container mx-auto px-4 max-w-xl text-center space-y-6">
-        <div className="space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight">Join the Forge Waitlist</h2>
-          <p className="text-muted-foreground text-sm">
-            Be among the first developers to get early access when we launch.
-          </p>
-        </div>
+    <section
+      id="waitlist"
+      className="px-4 md:px-16 py-28 max-w-[1440px] mx-auto fade-in-up delay-200"
+    >
+      <div className="max-w-xl mx-auto text-center space-y-8">
+        <h2 className="text-2xl md:text-3xl font-bold text-on-background tracking-tight">
+          Ready to build?
+        </h2>
+        <p className="text-base text-on-surface-variant">
+          Join the waitlist to get early access to Forge.
+        </p>
 
-        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email address"
-            disabled={status === 'submitting'}
-            aria-label="Email address"
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-            required
-          />
-          <button
-            type="submit"
-            disabled={status === 'submitting'}
-            className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 disabled:opacity-50 min-w-[120px]"
-          >
-            {status === 'submitting' ? 'Joining...' : 'Join Waitlist'}
-          </button>
+        <form onSubmit={handleSubmit} className="space-y-4" id="waitlistForm">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email address"
+              disabled={status === 'submitting'}
+              aria-label="Email address"
+              required
+              className="flex-grow bg-surface-dim border border-outline-variant rounded p-3 text-on-background focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-sm font-mono placeholder:text-on-surface-variant/50 disabled:opacity-50"
+            />
+            <button
+              id="submitBtn"
+              type="submit"
+              disabled={status === 'submitting'}
+              className="bg-primary text-on-primary text-sm font-medium px-6 py-3 rounded border border-primary hover:bg-transparent hover:text-primary transition-colors duration-200 whitespace-nowrap disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {status === 'submitting' ? 'Joining...' : 'Join waitlist'}
+            </button>
+          </div>
+
+          <div id="formStatus" className="text-sm h-6 flex items-center justify-center font-mono">
+            {status === 'success' && (
+              <span className="text-primary font-semibold" role="status">
+                {message}
+              </span>
+            )}
+            {status === 'duplicate' && (
+              <span className="text-secondary font-semibold" role="status">
+                {message}
+              </span>
+            )}
+            {status === 'error' && (
+              <span className="text-error font-semibold" role="alert">
+                {message}
+              </span>
+            )}
+          </div>
         </form>
-
-        {status === 'success' && (
-          <p className="text-sm font-medium text-green-600 dark:text-green-400" role="status">
-            {message}
-          </p>
-        )}
-
-        {status === 'error' && (
-          <p className="text-sm font-medium text-destructive" role="alert">
-            {message}
-          </p>
-        )}
       </div>
     </section>
   );
 }
-

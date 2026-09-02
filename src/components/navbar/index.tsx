@@ -1,33 +1,50 @@
-import navItems from '@/data/navigation.json';
-
 export default function Navbar() {
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <div className="flex items-center gap-2">
-          <span className="text-xl font-bold tracking-tight">Forge</span>
-        </div>
-        <nav className="hidden md:flex gap-6 text-sm font-medium">
-          {navItems.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
-            >
-              {item.label}
-            </a>
-          ))}
-        </nav>
-        <div>
+    <header className="bg-background w-full top-0 sticky z-50 border-b border-outline-variant">
+      <div className="flex justify-between items-center px-4 md:px-16 py-4 max-w-[1440px] mx-auto">
+        <div className="flex items-center space-x-8">
           <a
-            href="#waitlist"
-            className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
+            className="text-2xl md:text-3xl font-bold text-on-background tracking-tighter"
+            href="#"
           >
-            Join Waitlist
+            Forge
+          </a>
+          <nav className="hidden md:flex space-x-6 text-sm">
+            <a
+              className="text-on-surface-variant hover:text-primary transition-colors duration-200"
+              href="#features"
+            >
+              Features
+            </a>
+            <a
+              className="text-on-surface-variant hover:text-primary transition-colors duration-200"
+              href="#templates"
+            >
+              Templates
+            </a>
+            <a
+              className="text-on-surface-variant hover:text-primary transition-colors duration-200"
+              href="#how-it-works"
+            >
+              How it works
+            </a>
+            <a
+              className="text-on-surface-variant hover:text-primary transition-colors duration-200"
+              href="#community"
+            >
+              Community
+            </a>
+          </nav>
+        </div>
+        <div className="flex items-center">
+          <a
+            className="bg-primary text-on-primary text-xs font-medium px-4 py-2 rounded border border-primary hover:bg-transparent hover:text-primary transition-colors duration-200"
+            href="#waitlist"
+          >
+            Join waitlist
           </a>
         </div>
       </div>
     </header>
   );
 }
-

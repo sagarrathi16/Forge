@@ -1,29 +1,59 @@
 export default function HowItWorks() {
   const steps = [
-    { step: "01", title: "Pick an idea", desc: "Select from curated templates or enter your own custom prompt." },
-    { step: "02", title: "Build your project", desc: "Use AI assistance to write clean code, add features, and fix bugs." },
-    { step: "03", title: "Deploy it", desc: "Launch your application with one click onto global edge infrastructure." },
-    { step: "04", title: "Share it", desc: "Publish your work to the developer community and collect feedback." },
+    {
+      num: "1",
+      title: "Pick a path",
+      desc: "Start from a curated template or describe what you want to build in plain English to our AI engine.",
+    },
+    {
+      num: "2",
+      title: "Build",
+      desc: "Iterate on the scaffolded code with integrated AI tools tailored to your stack.",
+    },
+    {
+      num: "3",
+      title: "Deploy",
+      desc: "Push your code. We handle the infrastructure, database, and hosting instantly.",
+    },
+    {
+      num: "4",
+      title: "Share",
+      desc: "Publish to the Forge community to get feedback, users, or contributors.",
+    },
   ];
 
   return (
-    <section id="how-it-works" className="py-16">
-      <div className="container mx-auto px-4 max-w-5xl">
-        <div className="text-center space-y-4 mb-12">
-          <h2 className="text-3xl font-bold tracking-tight">How It Works</h2>
-          <p className="text-muted-foreground">Four simple steps to go from concept to launch.</p>
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {steps.map((item) => (
-            <div key={item.step} className="p-6 rounded-lg border bg-background space-y-3">
-              <span className="text-2xl font-bold text-primary">{item.step}</span>
-              <h3 className="text-lg font-semibold">{item.title}</h3>
-              <p className="text-sm text-muted-foreground">{item.desc}</p>
-            </div>
-          ))}
-        </div>
+    <section
+      id="how-it-works"
+      className="px-4 md:px-16 py-20 max-w-[1440px] mx-auto bg-surface-container-low border-y border-outline-variant fade-in-up delay-300"
+    >
+      <div className="mb-14">
+        <span className="font-mono text-xs text-primary uppercase tracking-widest mb-3 block">
+          Process
+        </span>
+        <h2 className="text-2xl md:text-3xl font-bold text-on-background tracking-tight">
+          How to get started
+        </h2>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {steps.map((step) => (
+          <div
+            key={step.num}
+            className="border-l-2 border-outline-variant pl-6 hover:border-primary transition-colors duration-300 space-y-2"
+          >
+            <span className="text-4xl font-bold text-surface-variant mb-2 block font-sans">
+              {step.num}
+            </span>
+            <h3 className="text-base font-semibold text-on-background">
+              {step.title}
+            </h3>
+            <p className="text-sm text-on-surface-variant leading-relaxed">
+              {step.desc}
+            </p>
+          </div>
+        ))}
       </div>
     </section>
   );
 }
-

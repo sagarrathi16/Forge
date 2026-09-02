@@ -1,16 +1,51 @@
 export default function Footer() {
   return (
-    <footer className="border-t py-8 bg-background">
-      <div className="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Forge. All rights reserved.</p>
-        <div className="flex gap-6">
-          <a href="#features" className="hover:text-foreground transition-colors">Features</a>
-          <a href="#how-it-works" className="hover:text-foreground transition-colors">How It Works</a>
-          <a href="#community" className="hover:text-foreground transition-colors">Community</a>
-          <a href="#waitlist" className="hover:text-foreground transition-colors">Waitlist</a>
+    <footer className="bg-surface w-full mt-auto border-t border-outline-variant">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4 md:px-16 py-12 max-w-[1440px] mx-auto">
+        <div>
+          <a
+            className="text-2xl font-bold text-on-background block mb-3 tracking-tighter"
+            href="#"
+          >
+            Forge
+          </a>
+          <p className="text-xs text-on-surface-variant font-mono">
+            &copy; {new Date().getFullYear()} Forge. All rights reserved.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-6 md:justify-end items-center text-xs">
+          <a
+            className="text-on-surface-variant hover:text-on-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded"
+            href="#features"
+          >
+            Features
+          </a>
+          <a
+            className="text-on-surface-variant hover:text-on-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded"
+            href="#how-it-works"
+          >
+            How it works
+          </a>
+          <a
+            className="text-on-surface-variant hover:text-on-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded"
+            href="#community"
+          >
+            Community
+          </a>
+          <a
+            className="text-on-surface-variant hover:text-on-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded"
+            href="#"
+          >
+            Privacy
+          </a>
+          <a
+            className="text-on-surface-variant hover:text-on-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded"
+            href="#"
+          >
+            Terms
+          </a>
         </div>
       </div>
     </footer>
   );
 }
-

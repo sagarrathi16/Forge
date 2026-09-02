@@ -1,26 +1,98 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --surface: #131313;
+    --surface-dim: #131313;
+    --surface-bright: #393939;
+    --surface-container-lowest: #0e0e0e;
+    --surface-container-low: #1b1b1c;
+    --surface-container: #202020;
+    --surface-container-high: #2a2a2a;
+    --surface-container-highest: #353535;
+    --on-surface: #e5e2e1;
+    --on-surface-variant: #c7c4d7;
+    --outline: #908fa0;
+    --outline-variant: #464554;
+    --primary: #c0c1ff;
+    --on-primary: #1000a9;
+    --primary-container: #8083ff;
+    --on-primary-container: #0d0096;
+    --secondary: #c8c6c5;
+    --on-secondary: #313030;
+    --background: #131313;
+    --on-background: #e5e2e1;
+    --border-technical: #2E2E2E;
+    --code-bg: #0A0A0A;
+    --error: #ffb4ab;
+    --on-error: #690005;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@theme {
+  --color-surface: var(--surface);
+  --color-surface-dim: var(--surface-dim);
+  --color-surface-bright: var(--surface-bright);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary-container: var(--on-primary-container);
+  --color-secondary: var(--secondary);
+  --color-on-secondary: var(--on-secondary);
+  --color-background: var(--background);
+  --color-on-background: var(--on-background);
+  --color-border-technical: var(--border-technical);
+  --color-code-bg: var(--code-bg);
+  --color-error: var(--error);
+  --color-on-error: var(--on-error);
+
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --spacing-margin-mobile: 16px;
+  --spacing-margin-desktop: 64px;
+  --spacing-container-max: 1440px;
+  --spacing-gutter: 24px;
+  --spacing-base: 8px;
 }
+
+body {
+  background-color: #0e0e0e;
+  color: #e5e2e1;
+  font-family: var(--font-sans);
+}
+
+.border-technical {
+  border: 1px solid #2E2E2E;
+}
+
+.code-bg {
+  background-color: #0A0A0A;
+}
+
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
