@@ -29,3 +29,4 @@ export function animateScrollToWaitlist(e?: React.MouseEvent) {
     window.location.href = '/#waitlist';
   }
 }
+

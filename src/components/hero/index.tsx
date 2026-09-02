@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { animateScrollToWaitlist } from '@/lib/navigation';
+import { useState } from 'react';
 
 type TerminalTab = 'init' | 'test' | 'deploy';
 
