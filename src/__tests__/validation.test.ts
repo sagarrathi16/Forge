@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { validateEmail } from '../lib/validation';
 
 describe('Email Validation Unit Tests', () => {
@@ -55,3 +55,4 @@ describe('Email Validation Unit Tests', () => {
     expect(result.error).toBe('Email address is too long.');
   });
 });
+

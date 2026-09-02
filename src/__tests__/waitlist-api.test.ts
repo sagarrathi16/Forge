@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { POST } from '../app/api/waitlist/route';
 import { NextRequest } from 'next/server';
+import { describe, expect, it } from 'vitest';
+import { POST } from '../app/api/waitlist/route';
 
 describe('Waitlist API Route Integration Tests', () => {
   it('should return 400 Bad Request when email is missing in request body', async () => {
@@ -70,3 +70,4 @@ describe('Waitlist API Route Integration Tests', () => {
     expect(data2.error).toBe('This email address is already on the waitlist.');
   });
 });
+
