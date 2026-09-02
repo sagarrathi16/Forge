@@ -1,0 +1,22 @@
+[
+  {
+    "id": "templates",
+    "title": "Start from a Template",
+    "description": "Kickstart your application instantly with production-ready starter kits optimized for performance and best practices."
+  },
+  {
+    "id": "ai-assisted",
+    "title": "AI-Assisted Development",
+    "description": "Smart inline code generation, intelligent refactoring, and context-aware debugging designed specifically for builders."
+  },
+  {
+    "id": "deployment",
+    "title": "One-Click Deployment",
+    "description": "Ship your project effortlessly to global edge networks with zero complex cloud configuration required."
+  },
+  {
+    "id": "community",
+    "title": "Developer Community",
+    "description": "Connect with thousands of active developers, showcase your creations, get feedback, and collaborate on cool projects."
+  }
+]

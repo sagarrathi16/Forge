@@ -1,0 +1,23 @@
+[
+  {
+    "id": "1",
+    "title": "DevPulse",
+    "description": "Real-time collaborative code review dashboard built in 48 hours using Forge.",
+    "author": "Alex Rivera",
+    "tags": ["Next.js", "Tailwind", "AI"]
+  },
+  {
+    "id": "2",
+    "title": "PixelCraft",
+    "description": "Browser-based generative art studio powered by WebAssembly.",
+    "author": "Sarah Chen",
+    "tags": ["TypeScript", "Canvas", "Wasm"]
+  },
+  {
+    "id": "3",
+    "title": "EchoDB",
+    "description": "Lightweight distributed key-value store with web dashboard.",
+    "author": "Marcus Vance",
+    "tags": ["Rust", "React", "PostgreSQL"]
+  }
+]

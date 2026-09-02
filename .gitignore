@@ -33,6 +33,14 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# local documentation & design assets
+Hack_Club_Frontend_Take_Home_Assignment.pdf
+ARCHITECTURE.md
+ARCHITECTURE .md
+DECISIONS.md
+Design/
+
+
 # vercel
 .vercel
 
