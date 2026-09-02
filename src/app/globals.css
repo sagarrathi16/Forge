@@ -69,8 +69,38 @@ body {
   background-color: #0e0e0e;
   color: #e5e2e1;
   font-family: var(--font-sans);
+  overflow-x: hidden;
 }
 
+/* Custom Clean Technical Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0e0e0e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #464554;
+}
+
+/* Hide scrollbar for mobile snap carousel */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Precise Technical 1px border */
 .border-technical {
   border: 1px solid #2E2E2E;
 }
@@ -79,10 +109,56 @@ body {
   background-color: #0A0A0A;
 }
 
+/* Tactile button micro-interaction */
+.btn-tactile {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+.btn-tactile:hover {
+  filter: brightness(1.06);
+}
+.btn-tactile:active {
+  transform: scale(0.97);
+  filter: brightness(0.92);
+}
+
+/* Interactive Card micro-interaction */
+.card-tactile {
+  border: 1px solid #2E2E2E;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card-tactile:hover {
+  border-color: rgba(192, 193, 255, 0.45);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(192, 193, 255, 0.1);
+}
+
+/* Skeleton Loading Shimmer */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Smooth fade-in entrance */
 .fade-in-up {
   opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInUp 0.8s ease-out forwards;
+  transform: translateY(16px);
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes fadeInUp {
@@ -92,15 +168,21 @@ body {
   }
 }
 
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
-.delay-300 { animation-delay: 300ms; }
-.delay-400 { animation-delay: 400ms; }
+.delay-100 { animation-delay: 80ms; }
+.delay-200 { animation-delay: 160ms; }
+.delay-300 { animation-delay: 240ms; }
+.delay-400 { animation-delay: 320ms; }
 
 @media (prefers-reduced-motion: reduce) {
   .fade-in-up {
     animation: none;
     opacity: 1;
+    transform: none;
+  }
+  .btn-tactile:active {
+    transform: none;
+  }
+  .card-tactile:hover {
     transform: none;
   }
 }
