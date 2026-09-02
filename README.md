@@ -17,6 +17,14 @@ This repository contains the complete frontend landing website, multi-page routi
 
 ---
 
+## Documentation
+
+Comprehensive technical documentation is organized inside the [`docs/`](docs/) directory:
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — Technical system design, frontend structure, waitlist API flow, Supabase schema & RLS security rules.
+- [`docs/DECISIONS.md`](docs/DECISIONS.md) — Architecture decisions, framework selection rationale, trade-offs, and production roadmap.
+
+---
+
 ## Features Built
 
 - **High-Density Technical UI**: Customized dark charcoal theme with technical stroke borders and electric indigo primary accents matching the design system specifications.
