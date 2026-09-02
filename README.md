@@ -19,7 +19,7 @@ This repository contains the complete frontend landing website, multi-page routi
 
 ## Features Built
 
-- **High-Density Technical UI**: Customized dark charcoal theme (`#131313`, `#2E2E2E`, `#c0c1ff`) matching the design system specifications.
+- **High-Density Technical UI**: Customized dark charcoal theme with technical stroke borders and electric indigo primary accents matching the design system specifications.
 - **Hero & Interactive CLI Visual**: Clean 2-line headline layout with a code terminal preview simulating `forge-cli` commands.
 - **Dedicated Starter Kits Page (`/templates`)**: Interactive category filtering (`Full-Stack`, `Frontend`, `AI / ML`, `Systems`) and one-click copyable CLI commands.
 - **Community Showcase Page (`/community`)**: Project showcase cards detailing community builds, demo links, tech tags, stars, upvotes, and developer testimonials.

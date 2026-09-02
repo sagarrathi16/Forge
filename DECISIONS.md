@@ -22,7 +22,7 @@ Build the application using **Next.js 16 (App Router)** with **TypeScript** and 
 1. **Unified Application Architecture**: Next.js allows us to build the frontend pages (`/`, `/templates`, `/community`) and the backend API endpoint (`POST /api/waitlist`) inside a single repository. This avoids managing separate client and server repositories for an MVP product.
 2. **Compile-Time Type Safety**: TypeScript enforces strict types across UI props, static JSON datasets, and API payload contracts, preventing runtime errors.
 3. **Static Page Generation (SSG)**: Pre-rendering the landing pages at build time guarantees sub-millisecond initial page loads and superior SEO performance.
-4. **Tailwind CSS v4 Utility Theme**: Theme variables defined in `src/app/globals.css` provide a cohesive dark-mode high-density charcoal aesthetic (`#131313`, `#2E2E2E`, `#c0c1ff`).
+4. **Tailwind CSS v4 Utility Theme**: Theme variables defined in `src/app/globals.css` provide a cohesive dark-mode high-density charcoal aesthetic with technical stroke borders and electric indigo primary accents.
 
 ### Alternative Considered: Separate React SPA + Express/Fastify API
 We considered building a standalone Vite/React SPA connected to an Express or Fastify backend API. While viable, managing CORS headers, dual deployments, and separate environment configurations added friction without offering any performance advantage over Next.js Route Handlers.
