@@ -63,6 +63,9 @@ export default function WaitlistForm() {
 
         <form onSubmit={handleSubmit} className="space-y-4" id="waitlistForm">
           <div className="flex flex-col sm:flex-row gap-4">
+            <label htmlFor="email" className="sr-only">
+              Email address
+            </label>
             <input
               id="email"
               type="email"
@@ -84,7 +87,11 @@ export default function WaitlistForm() {
             </button>
           </div>
 
-          <div id="formStatus" className="text-sm h-6 flex items-center justify-center font-mono">
+          <div
+            id="formStatus"
+            aria-live="polite"
+            className="text-sm h-6 flex items-center justify-center font-mono"
+          >
             {status === 'success' && (
               <span className="text-primary font-semibold" role="status">
                 {message}
