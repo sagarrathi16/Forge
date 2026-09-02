@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { animateScrollToWaitlist } from '@/lib/navigation';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -15,10 +16,26 @@ export default function Navbar() {
     { label: 'Community', href: '/community' },
   ];
 
+  // Only highlight dedicated route pages; do not falsely auto-select hash links on home
   const isActive = (href: string) => {
     if (href === '/templates') return pathname === '/templates';
     if (href === '/community') return pathname === '/community';
-    return pathname === '/' && href.startsWith('/#');
+    return false;
+  };
+
+  // When clicking Forge on the landing page, smoothly scroll directly back to top
+  const handleLogoClick = (e: React.MouseEvent) => {
+    if (pathname === '/') {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleWaitlistClick = (e: React.MouseEvent) => {
+    if (pathname === '/') {
+      animateScrollToWaitlist(e);
+    }
+    setMobileMenuOpen(false);
   };
 
   return (
@@ -27,8 +44,9 @@ export default function Navbar() {
         {/* Brand & Nav */}
         <div className="flex items-center space-x-8">
           <Link
-            className="flex items-center gap-2 text-xl md:text-2xl font-bold text-on-background tracking-tighter btn-tactile group"
+            className="flex items-center gap-2 text-xl md:text-2xl font-bold text-on-background tracking-tighter btn-tactile group cursor-pointer"
             href="/"
+            onClick={handleLogoClick}
           >
             <span>Forge</span>
             <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
@@ -61,8 +79,9 @@ export default function Navbar() {
         {/* Action Button & Mobile Toggle */}
         <div className="flex items-center gap-3">
           <Link
-            className="bg-primary text-on-primary text-xs font-semibold px-4 py-2 rounded border border-primary hover:bg-transparent hover:text-primary transition-all duration-200 shadow-[0_0_12px_rgba(192,193,255,0.2)] hover:shadow-[0_0_20px_rgba(192,193,255,0.4)] btn-tactile"
+            className="bg-primary text-on-primary text-xs font-semibold px-4 py-2 rounded border border-primary hover:bg-transparent hover:text-primary transition-all duration-200 shadow-[0_0_12px_rgba(192,193,255,0.2)] hover:shadow-[0_0_20px_rgba(192,193,255,0.4)] btn-tactile cursor-pointer"
             href="/#waitlist"
+            onClick={handleWaitlistClick}
           >
             Join waitlist
           </Link>
@@ -105,6 +124,13 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+          <Link
+            href="/#waitlist"
+            onClick={handleWaitlistClick}
+            className="block px-3 py-2 rounded text-sm text-primary font-bold hover:bg-white/[0.04] transition-colors btn-tactile"
+          >
+            Join waitlist →
+          </Link>
           <div className="pt-2 border-t border-outline-variant flex items-center justify-between text-xs text-on-surface-variant font-mono">
             <span>Status: Operational</span>
             <span className="text-primary">edge: us-east</span>

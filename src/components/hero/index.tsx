@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { animateScrollToWaitlist } from '@/lib/navigation';
 
 type TerminalTab = 'init' | 'test' | 'deploy';
 
@@ -20,6 +21,12 @@ export default function Hero() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const scrollToHowItWorks = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const el = document.getElementById('how-it-works');
+    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
     <section className="px-4 md:px-16 py-16 md:py-24 max-w-[1440px] mx-auto fade-in-up">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
@@ -28,7 +35,8 @@ export default function Hero() {
           {/* Announcement Chip */}
           <a
             href="#waitlist"
-            className="inline-flex items-center gap-2 text-xs font-mono font-medium text-on-surface-variant bg-surface-container-low px-3 py-1.5 rounded-full border border-outline-variant hover:border-primary/60 hover:text-on-surface transition-all btn-tactile group"
+            onClick={animateScrollToWaitlist}
+            className="inline-flex items-center gap-2 text-xs font-mono font-medium text-on-surface-variant bg-surface-container-low px-3 py-1.5 rounded-full border border-outline-variant hover:border-primary/60 hover:text-on-surface transition-all btn-tactile group cursor-pointer"
           >
             <span className="w-2 h-2 rounded-full bg-primary animate-ping"></span>
             <span>Early Access Waitlist is Live</span>
@@ -47,15 +55,17 @@ export default function Hero() {
 
           <div className="flex flex-wrap gap-4 pt-1">
             <a
-              className="bg-primary text-on-primary text-sm font-semibold px-6 py-3 rounded border border-primary hover:bg-transparent hover:text-primary transition-all duration-200 shadow-[0_0_16px_rgba(192,193,255,0.25)] hover:shadow-[0_0_24px_rgba(192,193,255,0.45)] btn-tactile flex items-center gap-2 group"
+              className="bg-primary text-on-primary text-sm font-semibold px-6 py-3 rounded border border-primary hover:bg-transparent hover:text-primary transition-all duration-200 shadow-[0_0_16px_rgba(192,193,255,0.25)] hover:shadow-[0_0_24px_rgba(192,193,255,0.45)] btn-tactile flex items-center gap-2 group cursor-pointer"
               href="#waitlist"
+              onClick={animateScrollToWaitlist}
             >
               <span>Join the waitlist</span>
               <span className="group-hover:translate-x-1 transition-transform">→</span>
             </a>
             <a
-              className="bg-transparent text-on-background text-sm font-medium px-6 py-3 rounded border border-outline-variant hover:border-primary hover:text-primary transition-all duration-200 btn-tactile"
+              className="bg-transparent text-on-background text-sm font-medium px-6 py-3 rounded border border-outline-variant hover:border-primary hover:text-primary transition-all duration-200 btn-tactile cursor-pointer"
               href="#how-it-works"
+              onClick={scrollToHowItWorks}
             >
               See how it works
             </a>

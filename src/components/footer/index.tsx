@@ -1,13 +1,33 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { animateScrollToWaitlist } from '@/lib/navigation';
 
 export default function Footer() {
+  const pathname = usePathname();
+
+  const handleLogoClick = (e: React.MouseEvent) => {
+    if (pathname === '/') {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleWaitlistClick = (e: React.MouseEvent) => {
+    if (pathname === '/') {
+      animateScrollToWaitlist(e);
+    }
+  };
+
   return (
     <footer className="bg-surface w-full mt-auto border-t border-outline-variant">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4 md:px-16 py-10 max-w-[1440px] mx-auto">
         <div>
           <Link
-            className="text-2xl font-extrabold text-on-background inline-block mb-2 tracking-tighter btn-tactile"
+            className="text-2xl font-extrabold text-on-background inline-block mb-2 tracking-tighter btn-tactile cursor-pointer"
             href="/"
+            onClick={handleLogoClick}
           >
             Forge
           </Link>
@@ -46,8 +66,9 @@ export default function Footer() {
             Community
           </Link>
           <Link
-            className="text-on-surface-variant hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary rounded px-2 py-1 hover:bg-white/[0.04] btn-tactile"
+            className="text-on-surface-variant hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary rounded px-2 py-1 hover:bg-white/[0.04] btn-tactile cursor-pointer"
             href="/#waitlist"
+            onClick={handleWaitlistClick}
           >
             Waitlist
           </Link>
