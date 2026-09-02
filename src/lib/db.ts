@@ -2,9 +2,10 @@
  * Supabase / PostgreSQL Database Interface for Forge
  * Manages waitlist submissions, starter templates, and community data (projects, testimonials, platform statistics).
  * Reads credentials dynamically from process.env without hardcoding.
+ * Uses low-latency timeouts and ISR caching for instant response times.
  */
 
-import { PlatformStatistics, Project, Template, Testimonial } from '@/types';
+import { Template, Project, Testimonial, PlatformStatistics } from '@/types';
 
 export interface WaitlistRecord {
   id?: string;
@@ -188,6 +189,7 @@ export async function getTemplates(): Promise<Template[]> {
           apikey: supabaseKey,
           Authorization: `Bearer ${supabaseKey}`,
         },
+        signal: AbortSignal.timeout(1200),
       });
 
       if (response.ok) {
@@ -225,6 +227,7 @@ export async function getCommunityProjects(): Promise<Project[]> {
           apikey: supabaseKey,
           Authorization: `Bearer ${supabaseKey}`,
         },
+        signal: AbortSignal.timeout(1200),
       });
 
       if (response.ok) {
@@ -265,6 +268,7 @@ export async function getTestimonials(): Promise<Testimonial[]> {
           apikey: supabaseKey,
           Authorization: `Bearer ${supabaseKey}`,
         },
+        signal: AbortSignal.timeout(1200),
       });
 
       if (response.ok) {
@@ -299,6 +303,7 @@ export async function getCommunityStats(): Promise<PlatformStatistics> {
           apikey: supabaseKey,
           Authorization: `Bearer ${supabaseKey}`,
         },
+        signal: AbortSignal.timeout(1200),
       });
 
       if (response.ok) {
@@ -332,12 +337,12 @@ export async function updateProjectReaction(
 
   if (supabaseUrl && supabaseKey) {
     try {
-      // 1. Fetch current project
       const getRes = await fetch(`${supabaseUrl}/rest/v1/community_projects?id=eq.${projectId}&select=stars,upvotes`, {
         headers: {
           apikey: supabaseKey,
           Authorization: `Bearer ${supabaseKey}`,
         },
+        signal: AbortSignal.timeout(1500),
       });
 
       if (getRes.ok) {
@@ -356,6 +361,7 @@ export async function updateProjectReaction(
               Prefer: 'return=minimal',
             },
             body: JSON.stringify(patchBody),
+            signal: AbortSignal.timeout(1500),
           });
 
           return patchRes.ok;
@@ -395,6 +401,7 @@ export async function insertWaitlistEmail(email: string): Promise<{ success: boo
           Prefer: 'return=minimal',
         },
         body: JSON.stringify({ email: normalizedEmail }),
+        signal: AbortSignal.timeout(2000),
       });
 
       if (response.status === 201 || response.status === 200 || response.ok) {
@@ -446,6 +453,7 @@ export async function getWaitlistCount(): Promise<number> {
           Authorization: `Bearer ${supabaseKey}`,
           'Content-Type': 'application/json',
         },
+        signal: AbortSignal.timeout(1200),
       });
 
       if (rpcRes.ok) {
@@ -462,6 +470,7 @@ export async function getWaitlistCount(): Promise<number> {
           Authorization: `Bearer ${supabaseKey}`,
           Prefer: 'count=exact',
         },
+        signal: AbortSignal.timeout(1200),
       });
 
       if (countRes.ok) {
@@ -484,4 +493,3 @@ export async function getWaitlistCount(): Promise<number> {
 
   return 14 + inMemoryWaitlist.size;
 }
-

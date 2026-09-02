@@ -3,7 +3,7 @@ import Navbar from '@/components/navbar';
 import Templates from '@/components/templates';
 import { getTemplates } from '@/lib/db';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export const metadata = {
   title: "Forge Starter Kits & Templates",

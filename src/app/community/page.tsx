@@ -3,7 +3,7 @@ import Navbar from '@/components/navbar';
 import SocialProof from '@/components/social-proof';
 import { getCommunityProjects, getTestimonials, getCommunityStats } from '@/lib/db';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 30;
 
 export const metadata = {
   title: "Forge Community Shared Builds & Showcase",

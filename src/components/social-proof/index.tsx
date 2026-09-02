@@ -17,6 +17,7 @@ export default function SocialProof({
   const [projects, setProjects] = useState<Project[]>(initialProjects);
   const [testimonials, setTestimonials] = useState<Testimonial[]>(initialTestimonials);
   const [stats, setStats] = useState<PlatformStatistics>(initialStats);
+  const [loading, setLoading] = useState<boolean>(initialProjects.length === 0);
   const [activeProjectSlide, setActiveProjectSlide] = useState(0);
   const [activeTestimonialSlide, setActiveTestimonialSlide] = useState(0);
   const [userReactions, setUserReactions] = useState<{ [key: string]: { starred?: boolean; upvoted?: boolean } }>({});
@@ -24,9 +25,9 @@ export default function SocialProof({
   const projectsScrollRef = useRef<HTMLDivElement>(null);
   const testimonialsScrollRef = useRef<HTMLDivElement>(null);
 
-  // If initial data wasn't passed, fetch from backend API
   useEffect(() => {
     if (projects.length === 0 || testimonials.length === 0) {
+      setLoading(true);
       fetch('/api/community')
         .then((res) => res.json())
         .then((payload) => {
@@ -36,7 +37,8 @@ export default function SocialProof({
             if (payload.data.stats) setStats(payload.data.stats);
           }
         })
-        .catch((err) => console.warn('Could not fetch community data from API:', err));
+        .catch((err) => console.warn('Could not fetch community data from API:', err))
+        .finally(() => setLoading(false));
     }
   }, [projects.length, testimonials.length]);
 
@@ -44,7 +46,6 @@ export default function SocialProof({
     const isCurrentlyStarred = userReactions[projectId]?.starred || false;
     const delta = isCurrentlyStarred ? -1 : 1;
 
-    // Optimistic UI update
     setUserReactions((prev) => ({
       ...prev,
       [projectId]: { ...prev[projectId], starred: !isCurrentlyStarred },
@@ -59,7 +60,6 @@ export default function SocialProof({
       })
     );
 
-    // Sync with backend API
     try {
       await fetch('/api/community', {
         method: 'POST',
@@ -75,7 +75,6 @@ export default function SocialProof({
     const isCurrentlyUpvoted = userReactions[projectId]?.upvoted || false;
     const delta = isCurrentlyUpvoted ? -1 : 1;
 
-    // Optimistic UI update
     setUserReactions((prev) => ({
       ...prev,
       [projectId]: { ...prev[projectId], upvoted: !isCurrentlyUpvoted },
@@ -90,7 +89,6 @@ export default function SocialProof({
       })
     );
 
-    // Sync with backend API
     try {
       await fetch('/api/community', {
         method: 'POST',
@@ -176,118 +174,150 @@ export default function SocialProof({
           </div>
         </div>
 
-        <div
-          ref={projectsScrollRef}
-          onScroll={handleProjectsScroll}
-          className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 overflow-x-auto md:overflow-visible snap-x snap-mandatory scrollbar-none pb-4 md:pb-0 -mx-4 md:mx-0 px-4 md:px-0"
-        >
-          {projects.map((project) => {
-            const isStarred = userReactions[project.id]?.starred;
-            const isUpvoted = userReactions[project.id]?.upvoted;
-
-            return (
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
               <div
-                key={project.id}
-                className="card-tactile min-w-[84vw] sm:min-w-[320px] md:min-w-0 snap-center rounded-lg p-6 bg-surface flex flex-col justify-between space-y-4 group relative overflow-hidden"
+                key={i}
+                className="rounded-lg p-6 bg-surface border border-outline-variant/60 space-y-4 flex flex-col justify-between animate-pulse"
               >
                 <div className="space-y-3">
-                  <div className="flex items-start justify-between">
-                    <h4 className="text-lg font-bold text-on-background group-hover:text-primary transition-colors">
-                      {project.title}
-                    </h4>
-                    {project.demoUrl && (
-                      <a
-                        href={project.demoUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline text-xs font-mono flex items-center gap-1 btn-tactile"
-                      >
-                        <span className="material-symbols-outlined text-sm">link</span>
-                        Live Demo
-                      </a>
-                    )}
+                  <div className="flex justify-between items-center">
+                    <div className="w-32 h-5 bg-surface-container rounded"></div>
+                    <div className="w-16 h-4 bg-primary/10 rounded"></div>
                   </div>
-
-                  <p className="text-sm text-on-surface-variant leading-relaxed line-clamp-3">
-                    {project.description}
-                  </p>
+                  <div className="w-full h-3.5 bg-surface-container/70 rounded"></div>
+                  <div className="w-4/5 h-3.5 bg-surface-container/70 rounded"></div>
                 </div>
 
-                <div className="space-y-4 pt-2 border-t border-outline-variant/50">
-                  {/* Tech Stack Tags */}
-                  <div className="flex flex-wrap gap-1.5">
-                    {project.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="font-mono text-[11px] text-on-surface-variant bg-surface-container-low px-2 py-0.5 rounded border border-outline-variant/60"
-                      >
-                        {tag}
-                      </span>
-                    ))}
+                <div className="space-y-3 pt-2 border-t border-outline-variant/40">
+                  <div className="flex gap-1.5">
+                    <div className="w-12 h-4 bg-surface-container-low rounded"></div>
+                    <div className="w-16 h-4 bg-surface-container-low rounded"></div>
                   </div>
-
-                  {/* Author & Interactive Reactions */}
-                  <div className="flex items-center justify-between text-xs pt-1">
-                    <div>
-                      <span className="font-semibold text-on-background block">
-                        {project.author}
-                      </span>
-                      <span className="text-[10px] text-on-surface-variant font-mono">
-                        {project.role}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center space-x-2 text-on-surface-variant font-mono text-xs">
-                      {/* Interactive Star Button */}
-                      <button
-                        onClick={() => toggleStar(project.id)}
-                        className={`flex items-center gap-1 px-2 py-1 rounded border transition-all btn-tactile ${
-                          isStarred
-                            ? 'bg-amber-500/10 border-amber-500/40 text-amber-300'
-                            : 'bg-surface-container border-outline-variant/60 hover:border-primary/50'
-                        }`}
-                        title="Star this build"
-                      >
-                        <span className="material-symbols-outlined text-sm text-amber-400">
-                          {isStarred ? 'star' : 'star_outline'}
-                        </span>
-                        <span>{project.stars}</span>
-                      </button>
-
-                      {/* Interactive Upvote Button */}
-                      <button
-                        onClick={() => toggleUpvote(project.id)}
-                        className={`flex items-center gap-1 px-2 py-1 rounded border transition-all btn-tactile ${
-                          isUpvoted
-                            ? 'bg-primary/20 border-primary/50 text-primary'
-                            : 'bg-surface-container border-outline-variant/60 hover:border-primary/50'
-                        }`}
-                        title="Upvote this build"
-                      >
-                        <span className="material-symbols-outlined text-sm text-primary">
-                          thumb_up
-                        </span>
-                        <span>{project.upvotes}</span>
-                      </button>
+                  <div className="flex justify-between items-center pt-1">
+                    <div className="w-20 h-4 bg-surface-container rounded"></div>
+                    <div className="flex gap-2">
+                      <div className="w-12 h-6 bg-surface-container rounded"></div>
+                      <div className="w-12 h-6 bg-surface-container rounded"></div>
                     </div>
                   </div>
                 </div>
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div
+            ref={projectsScrollRef}
+            onScroll={handleProjectsScroll}
+            className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 overflow-x-auto md:overflow-visible snap-x snap-mandatory scrollbar-none pb-4 md:pb-0 -mx-4 md:mx-0 px-4 md:px-0"
+          >
+            {projects.map((project) => {
+              const isStarred = userReactions[project.id]?.starred;
+              const isUpvoted = userReactions[project.id]?.upvoted;
 
-        {/* Mobile Pagination Indicator Dots for Projects */}
-        <div className="flex md:hidden justify-center items-center gap-1.5 mt-4">
-          {projects.map((_, i) => (
-            <span
-              key={i}
-              className={`h-1.5 rounded-full transition-all duration-200 ${
-                activeProjectSlide === i ? 'w-6 bg-primary' : 'w-1.5 bg-outline-variant'
-              }`}
-            />
-          ))}
-        </div>
+              return (
+                <div
+                  key={project.id}
+                  className="card-tactile min-w-[84vw] sm:min-w-[320px] md:min-w-0 snap-center rounded-lg p-6 bg-surface flex flex-col justify-between space-y-4 group relative overflow-hidden"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between">
+                      <h4 className="text-lg font-bold text-on-background group-hover:text-primary transition-colors">
+                        {project.title}
+                      </h4>
+                      {project.demoUrl && (
+                        <a
+                          href={project.demoUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline text-xs font-mono flex items-center gap-1 btn-tactile"
+                        >
+                          <span className="material-symbols-outlined text-sm">link</span>
+                          Live Demo
+                        </a>
+                      )}
+                    </div>
+
+                    <p className="text-sm text-on-surface-variant leading-relaxed line-clamp-3">
+                      {project.description}
+                    </p>
+                  </div>
+
+                  <div className="space-y-4 pt-2 border-t border-outline-variant/50">
+                    <div className="flex flex-wrap gap-1.5">
+                      {project.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="font-mono text-[11px] text-on-surface-variant bg-surface-container-low px-2 py-0.5 rounded border border-outline-variant/60"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs pt-1">
+                      <div>
+                        <span className="font-semibold text-on-background block">
+                          {project.author}
+                        </span>
+                        <span className="text-[10px] text-on-surface-variant font-mono">
+                          {project.role}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center space-x-2 text-on-surface-variant font-mono text-xs">
+                        <button
+                          onClick={() => toggleStar(project.id)}
+                          className={`flex items-center gap-1 px-2 py-1 rounded border transition-all btn-tactile ${
+                            isStarred
+                              ? 'bg-amber-500/10 border-amber-500/40 text-amber-300'
+                              : 'bg-surface-container border-outline-variant/60 hover:border-primary/50'
+                          }`}
+                          title="Star this build"
+                        >
+                          <span className="material-symbols-outlined text-sm text-amber-400">
+                            {isStarred ? 'star' : 'star_outline'}
+                          </span>
+                          <span>{project.stars}</span>
+                        </button>
+
+                        <button
+                          onClick={() => toggleUpvote(project.id)}
+                          className={`flex items-center gap-1 px-2 py-1 rounded border transition-all btn-tactile ${
+                            isUpvoted
+                              ? 'bg-primary/20 border-primary/50 text-primary'
+                              : 'bg-surface-container border-outline-variant/60 hover:border-primary/50'
+                          }`}
+                          title="Upvote this build"
+                        >
+                          <span className="material-symbols-outlined text-sm text-primary">
+                            thumb_up
+                          </span>
+                          <span>{project.upvotes}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Mobile Pagination Indicator Dots */}
+        {!loading && (
+          <div className="flex md:hidden justify-center items-center gap-1.5 mt-4">
+            {projects.map((_, i) => (
+              <span
+                key={i}
+                className={`h-1.5 rounded-full transition-all duration-200 ${
+                  activeProjectSlide === i ? 'w-6 bg-primary' : 'w-1.5 bg-outline-variant'
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Testimonials Grid & Mobile Snap Slider */}
@@ -330,7 +360,7 @@ export default function SocialProof({
           ))}
         </div>
 
-        {/* Mobile Pagination Indicator Dots for Testimonials */}
+        {/* Mobile Pagination Indicator Dots */}
         <div className="flex md:hidden justify-center items-center gap-1.5 mt-4">
           {testimonials.map((_, i) => (
             <span
