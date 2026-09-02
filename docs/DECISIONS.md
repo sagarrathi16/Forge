@@ -1,31 +1,30 @@
 # DECISIONS.md
 
-## 1. Executive Architectural Summary
+## 1. Executive Architectural Overview
 
-When planning the architecture for Forge, the core engineering goal was to create a fast, polished developer product landing experience combined with a reliable backend API for waitlist capture.
+In terms of Forge architecture planning, the primary design objective was to have a fast and elegant experience for landing product development along with a robust backend API that would help capture waitlists.
 
-To keep the application performant and easy to maintain, the data layer is split into two categories:
-- **Static & Showcase Content** → Stored as local JSON modules (`src/data/*.json`)
-- **Dynamic User Submissions** → Stored in PostgreSQL via Supabase with Row Level Security (RLS)
+In order to ensure that the application remains performant and easily maintainable, the data structure is classified into two parts:
+- **Static & Product Copy** → Saved in local JSON modules (`src/data/*.json`)
+- **Dynamic User Submissions** → Saved in PostgreSQL using Supabase along with Row Level Security (RLS)
 
-This decision ensures database operations stay focused on user data, while static product copy loads instantly with zero database query overhead.
-
+This helps ensure that all operations in the database are related to the users, while static product copy loads immediately without any queries to the database.
 ---
 
-## 2. Framework & Language Choice: Why Next.js (App Router) & TypeScript?
+## 2. The Framework & Language Choice: Why Next.js (App Router) & TypeScript?
 
-### Decision
-Build the application using **Next.js 16 (App Router)** with **TypeScript** and **Tailwind CSS v4**.
+### The Decision
+Implement the app using **Next.js 16 (App Router)**, **TypeScript**, and **Tailwind CSS v4**.
 
-### Key Technical Reasons
+### The Key Technological Rationale
 
-1. **Unified Application Architecture**: Next.js allows us to build the frontend pages (`/`, `/templates`, `/community`) and the backend API endpoint (`POST /api/waitlist`) inside a single repository. This avoids managing separate client and server repositories for an MVP product.
-2. **Compile-Time Type Safety**: TypeScript enforces strict types across UI props, static JSON datasets, and API payload contracts, preventing runtime errors.
-3. **Static Page Generation (SSG)**: Pre-rendering the landing pages at build time guarantees sub-millisecond initial page loads and superior SEO performance.
-4. **Tailwind CSS v4 Utility Theme**: Theme variables defined in `src/app/globals.css` provide a cohesive dark-mode high-density charcoal aesthetic with technical stroke borders and electric indigo primary accents.
+1. **Consistent App Architecture**: Next.js enables development of both the frontend pages (`/`, `/templates`, `/community`) and the backend API endpoint (`POST /api/waitlist`) within one repo. This eliminates the necessity of having client and server repos for an MVP app.
+2. **Type Safety at Compile Time**: TypeScript ensures type safety in UI props, static JSON datasets, and API payload contracts, which helps avoid potential bugs at runtime.
+3. **Static Site Generation (SSG)**: Pages generation at the build time results in sub-millisecond first load times and improved SEO.
+4. **Dark Mode High-Density Charcoal Utility Theme in Tailwind CSS v4**: Theme variables specified in `src/app/globals.css` create a dark-mode high-density charcoal theme with technical stroke borders and electric indigo accents.
 
 ### Alternative Considered: Separate React SPA + Express/Fastify API
-We considered building a standalone Vite/React SPA connected to an Express or Fastify backend API. While viable, managing CORS headers, dual deployments, and separate environment configurations added friction without offering any performance advantage over Next.js Route Handlers.
+I considered building a standalone Vite/React SPA connected to an Express or Fastify backend API. While viable, managing CORS headers, dual deployments, and separate environment configurations added friction without offering any performance advantage over Next.js Route Handlers.
 
 ---
 
@@ -35,31 +34,30 @@ We considered building a standalone Vite/React SPA connected to an Express or Fa
 Use **PostgreSQL via Supabase** for waitlist persistence and Row Level Security.
 
 ### Technical Reasons
-1. **Relational Data Integrity**: PostgreSQL is ideal for structured user records (`id`, `email`, `created_at`).
-2. **Case-Insensitive Unique Index**: Enforcing `CREATE UNIQUE INDEX waitlist_email_unique_idx ON public.waitlist (LOWER(email))` prevents duplicate registrations at the database layer, eliminating race conditions.
-3. **Row Level Security (RLS)**: Supabase RLS policies permit public anonymous `INSERT` requests while strictly blocking unauthorized `SELECT` reads, protecting user email privacy.
+1. **Data Integrity in Relational Model**: PostgreSQL is suitable for user record tables that are id, email, created_at.
+2. **Unique Case Insensitive Index**: `CREATE UNIQUE INDEX waitlist_email_unique_idx ON public.waitlist (LOWER(email))` ensures there is no registration duplication via the database index, avoiding race condition.
+3. **Row Level Security (RLS)**: Supabase's RLS allows publicly accessible `INSERT` request but restricts unauthorized `SELECT` read access to maintain user email confidentiality.
 
-### Why not store all product copy in PostgreSQL?
-Storing features, templates, testimonials, and community projects in PostgreSQL would introduce:
-- Extra database queries on every page request
-- Schema migration files for static text changes
-- Unnecessary database connection pooling overhead
-- Additional deployment dependencies
+### But why not store everything in PostgreSQL Database?
+If all the product descriptions are stored in PostgreSQL, then:
+- More database queries for every request to any page
+- Schema migrations for any update to static text data
+- No need for extra database connections
+- No extra deployment dependencies
 
-Therefore, static demo copy remains in JSON modules (`src/data/*.json`).
+Therefore, the static demo texts will remain in JSON files (`src/data/*.json`).
 
 ---
 
-## 4. Multi-Page Routing Architecture vs Single-Page Scroll
+## 4. Multi-Page Routing Design vs. Single-Page Scrolling
 
-### Decision
-Create dedicated routes for **Starter Kits & Templates** (`/templates`) and **Community Showcase** (`/community`), keeping the main landing page (`/`) focused on the core product story.
+### Choice
+Build separate routes for **Starter Kits & Templates** (`/templates`) and **Community Showcase** (`/community`) to keep the landing page (`/`) clean and centered around the key message.
 
-### Technical & UX Reasons
-1. **Cognitive Load & Visual Hierarchy**: Packing dozens of template cards, filtering tabs, and community showcase projects onto the main landing page causes visual clutter and inflates DOM size.
-2. **Dedicated UX Flows**: Users clicking "Templates" or "Community" in the navbar expect dedicated, focused views with search, category filtering, and copyable CLI commands.
-3. **SEO & Deep Linking**: Separate URLs allow users and search engines to link directly to starter templates or community projects.
-
+### Technical & UX Rationale
+1. **Cognitive Overload & Visual Hierarchy**: Putting lots of template cards, filters, and community showcase items on the landing page will create visual clutter and increase DOM weight.
+2. **User Expectations & Experience**: When the user clicks on "Templates" or "Community" from the navbar, they are expecting a dedicated view with searching, filtering capabilities, and copyable commands.
+3. **SEO & Deep Links**: Separate URLs will enable deep links to the starter kits or community showcase projects.
 ---
 
 ## 5. Double Validation Strategy (Client + Server)
@@ -68,8 +66,8 @@ Create dedicated routes for **Starter Kits & Templates** (`/templates`) and **Co
 Implement email validation on both the client-side React form component and the server-side Next.js Route Handler.
 
 ### Technical Reasons
-- **Client Validation**: Provides instant user feedback on empty or invalid inputs before triggering a network request, improving form UX.
-- **Server Validation**: Client validation cannot be trusted as a security boundary. Server-side validation using RFC 5322 regex checks ensures invalid payloads submitted via cURL, Postman, or custom scripts never reach the database.
+- **Client-side Form Validation**: Offers immediate feedback to users for empty or invalid input prior to the execution of any network request.
+- **Server-side Form Validation**: One can't rely on client-side form validation for ensuring security since it is possible to bypass client-side validation using cURL, Postman, or scripts.
 
 ---
 

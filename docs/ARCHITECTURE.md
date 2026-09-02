@@ -2,31 +2,30 @@
 
 ## 1. Overview & System Goals
 
-Forge is a developer platform landing application designed to help young developers take software ideas from concept to production. The primary goal of the application is to provide a frictionless onboarding experience for creators:
+Forge is a developer platform landing application that aims to help aspiring developers turn their software ideas into something real and production-ready. The primary objective of the application is to facilitate a seamless onboarding process for creators:
 
-**Pick an idea → Build your project → Deploy it → Share it**
+**Choose an idea → Develop your project → Deploy your project → Share your project**
 
-The application architecture is cleanly divided into two primary subsystems:
-1. **Frontend Application**: A multi-page Next.js web app rendering the main landing page, dedicated starter kits showcase ([/templates](src/app/templates/page.tsx)), and a community builds page ([/community](src/app/community/page.tsx)).
-2. **Backend API & Data Tier**: A Next.js Route Handler (`POST /api/waitlist`) connected to Supabase (PostgreSQL) enforcing Row Level Security (RLS) for waitlist storage, duplicate handling, and validation.
+The architecture of the application is divided into two main subsystems:
+1. **Frontend Application**: Multi-page Next.js web application responsible for the primary landing page, templates page ([/templates](src/app/templates/page.tsx)), and builds community page ([/community](src/app/community/page.tsx)).
+2. **Backend API & Data Tier**: Next.js Route Handler (`POST /api/waitlist`) linked with Supabase (PostgreSQL) that implements Row Level Security (RLS) for waitlist data management and validation.
 
-The architecture prioritises core product UX, visual polish, responsive design, fast page loads, and strict server-side input validation.
-
+The architecture is focused on providing great product UX, aesthetic design, responsiveness, performance, and server-side input validation.
 ---
 
-## 2. Technology Stack & Rationale
+## 2. Tech Stack & Justification
 
 ### Frontend Layer
-- **Next.js 16 (App Router)**: Handles server-side rendering (SSR), static page generation (SSG), file-based routing, and API route handlers inside a unified framework.
-- **TypeScript**: Enforces strict compile-time type checking across component props, static data contracts, and API payload definitions.
-- **Tailwind CSS v4**: Utility-first CSS framework configured with custom theme variables for a dark-mode high-density charcoal aesthetic with technical stroke borders and electric indigo primary accents.
+- **Next.js 16 (App Router)**: Performs server side rendering (SSR), static page generation (SSG), file-based routing and API route handlers within one consistent framework.
+- **TypeScript**: Performs strict compile time type safety checks for component properties, static data types and API payloads.
+- **Tailwind CSS v4**: Utility based CSS framework that is customized with custom theme variables in order to provide dark mode high-density charcoal look and feel with technical stroke borders and electric indigo primary colors.
 
 ### Backend Layer
-- **Next.js Route Handler**: `POST /api/waitlist` processes incoming JSON requests, executes server-side validation, queries Supabase, and returns standard HTTP status responses (`201`, `400`, `409`, `500`).
+- **Next.js Route Handler**: `/api/waitlist POST` processes JSON requests, performs server side validations, queries Supabase and returns standard HTTP status codes (`201`, `400`, `409`, `500`).
 
-### Database & Security Layer
-- **PostgreSQL (via Supabase)**: Stores persistent waitlist submissions in table `public.waitlist` with a unique index on `LOWER(email)`.
-- **Row Level Security (RLS)**: Enforces database security policies allowing public anonymous inserts while restricting select queries exclusively to `service_role` admins.
+### Database Layer & Security
+- **PostgreSQL (via Supabase)**: Persistently stores waitlist requests in `public.waitlist` table using a unique index `LOWER(email)`.
+- **Row Level Security (RLS)**: Ensures database security policies that only allow public anonymous inserts and restrict SELECT queries to `service_role` administrators.
 
 ### Static Data Tier
 Product content that does not require database persistence is maintained as local JSON files in `src/data/`:
@@ -118,40 +117,39 @@ src/
     └── waitlist-api.test.ts      # Vitest integration tests for API route
 ```
 
-### Component Breakdown
+### Components Breakdown
 
 #### Navbar (`src/components/navbar/index.tsx`)
-- Provides sticky header navigation, Forge branding, links (`Features`, `Templates`, `How it works`, `Community`), and primary waitlist CTA button.
-- Responsive mobile navigation layout.
+- Offers sticky header navigation, branding (Forge), links (`Features`, `Templates`, `How it works`, `Community`), and primary waitlist CTA button.
+- Mobile navigation layout.
 
 #### Hero (`src/components/hero/index.tsx`)
-- Displays main product headline (*"From 'I have an idea' to 'I built it.'"*) formatted cleanly on two lines.
-- Supporting product copy, primary CTA (*Join the waitlist*), and secondary CTA (*See how it works*).
-- Interactive code terminal card simulating `forge-cli` commands (`forge init` / `forge deploy`) with live output preview.
+- Shows the main product tagline ("*From 'I have an idea' to 'I built it.'*") displayed clearly over two lines.
+- Supporting product text, primary CTA ("*Join the waitlist*"), and secondary CTA ("*See how it works*").
+- Interactive `code terminal` card displaying `forge-cli` command line (`forge init`/`forge deploy`) and live output preview.
 
 #### Capabilities / Features (`src/components/features/index.tsx`)
-- Displays 4 core capability cards with Material Symbols (`auto_awesome_mosaic`, `smart_toy`, `rocket_launch`, `forum`) and numbered badges (`01` - `04`).
+- Shows 4 capabilities cards with Material Symbols (`auto_awesome_mosaic`, `smart_toy`, `rocket_launch`, `forum`) and numbered badges (`01` - `04`).
 
 #### Templates Page & Component (`src/app/templates/page.tsx` & `src/components/templates/index.tsx`)
-- Standalone page route rendering production-ready starter kits.
+- Independent page route serving production-ready starter kits.
 - Interactive category filter tabs (`All`, `Full-Stack`, `Frontend`, `AI / ML`, `Systems`).
 - Copyable `forge-cli` commands with visual feedback.
 
 #### Audience & Value Proposition (`src/components/audience/index.tsx`)
-- 3-column breakdown explaining *Who it is for* (Builders with Ideas), *Why use it* (Frictionless Flow), and *What's different* (Ship, Don't Just Learn).
+- 3-column explanation of *Who it is for* (Builders with Ideas), *Why use it* (Frictionless Flow), and *What's different* (Ship, Not Just Learn).
 
 #### How It Works (`src/components/how-it-works/index.tsx`)
-- Explains the 4-step user workflow: `1. Pick a path` → `2. Build` → `3. Deploy` → `4. Share`.
+- Explanation of the 4-step user process: `1. Choose your path` → `2. Build` → `3. Deploy` → `4. Share`.
 
 #### Community Showcase Page & Component (`src/app/community/page.tsx` & `src/components/social-proof/index.tsx`)
-- Dedicated community showcase page displaying platform metrics, community shared project cards (*DevPulse*, *PixelCraft*, *EchoDB*, *AgentFlow*, *HyperScale*, *TaskCraft*), live demo links, star & upvote counters, and verified developer testimonials.
+- Community showcase page showing platform statistics, projects that developers built and contributed to (*DevPulse*, *PixelCraft*, *EchoDB*, *AgentFlow*, *HyperScale*, *TaskCraft*), demo links, star & upvote count, and verified testimonials from developers.
 
 #### Waitlist Form (`src/components/waitlist/index.tsx`)
-- Email input form with client-side regex validation, pending button state (`Joining...`), and dynamic feedback banners (*Success*, *Duplicate*, *Error*).
+- Email signup form with client-side regex validation, loading button state (`Joining...`) and dynamic feedback banners (*Success*, *Duplicate*, *Error*).
 
 #### Footer (`src/components/footer/index.tsx`)
-- Navigation links, legal/privacy placeholders, and copyright notice.
-
+- Navigation items, legal & privacy policy placeholders
 ---
 
 ## 5. Waitlist API & Backend Architecture

@@ -1,6 +1,6 @@
 # Forge — Developer Platform Landing Page & Waitlist API
 
-# Link - [https://forge-alpha-liart.vercel.app/](https://forge-alpha-liart.vercel.app/) 
+Link - [https://forge-alpha-liart.vercel.app/](https://forge-alpha-liart.vercel.app/) 
 
 Forge is a development platform built to enable early-stage developers to bring software ideas from conception to production. It comprises a set of carefully selected starter templates, AI-powered development, deployment with one click globally at the edge, and a showcase community.
 
