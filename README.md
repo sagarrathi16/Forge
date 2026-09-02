@@ -1,8 +1,10 @@
 # Forge — Developer Platform Landing Page & Waitlist API
 
-Forge is a developer platform designed to help young developers take software ideas from concept to production. It combines curated starter templates, AI-assisted development tools, one-click global edge deployment, and a community showcase.
+# Link - [https://forge-alpha-liart.vercel.app/](https://forge-alpha-liart.vercel.app/) 
 
-This repository contains the complete frontend landing website, multi-page routing (`/templates`, `/community`), backend waitlist API, Supabase database configuration with Row Level Security (RLS), and an automated Vitest test suite.
+Forge is a development platform built to enable early-stage developers to bring software ideas from conception to production. It comprises a set of carefully selected starter templates, AI-powered development, deployment with one click globally at the edge, and a showcase community.
+
+This repo consists of the entire frontend landing site, multi-page routing (`/templates`, `/community`), backend waitlist API, Supabase Database configured with RLS, and a Vitest testing suite.
 
 ---
 
@@ -27,13 +29,12 @@ Comprehensive technical documentation is organized inside the [`docs/`](docs/) d
 
 ## Features Built
 
-- **High-Density Technical UI**: Customized dark charcoal theme with technical stroke borders and electric indigo primary accents matching the design system specifications.
-- **Hero & Interactive CLI Visual**: Clean 2-line headline layout with a code terminal preview simulating `forge-cli` commands.
-- **Dedicated Starter Kits Page (`/templates`)**: Interactive category filtering (`Full-Stack`, `Frontend`, `AI / ML`, `Systems`) and one-click copyable CLI commands.
-- **Community Showcase Page (`/community`)**: Project showcase cards detailing community builds, demo links, tech tags, stars, upvotes, and developer testimonials.
-- **Waitlist API (`POST /api/waitlist`)**: Full double validation (client-side and server-side), duplicate email detection (`409 Conflict`), and Supabase REST integration.
+- **Technical UI with High Density**: Dark charcoal color scheme with technical stroke borders and electric indigo accent colors that follow design system guidelines.
+- **Visuals for Hero and Interactive CLI**: Simple 2-line headline structure with a code terminal that demonstrates `forge-cli` commands.
+- **Page for Starter Kits (`/templates`)**: Filtering based on categories (`Full-Stack`, `Frontend`, `AI / ML`, `Systems`), one click copy-able commands in CLI.
+- **Community Showcase Page (`/community`)**: Cards for project showcase that contain information about community projects, demos, technology used, stars, upvotes, and feedback from developers.
+- **API for Waitlist (`POST /api/waitlist`)**: Double validation (Client side and Server side), email duplication check (`409 Conflict`), and Supabase REST API integration.
 - **State Management**: Reactive UI feedback states (*Default*, *Submitting*, *Success*, *Duplicate*, *Error*).
-
 ---
 
 ## Local Development Setup
