@@ -5,12 +5,28 @@ export interface Feature {
   icon?: string;
 }
 
+export interface Template {
+  id: string;
+  title: string;
+  description: string;
+  category: 'Full-Stack' | 'Frontend' | 'AI / ML' | 'Systems';
+  tags: string[];
+  badge?: string;
+  cliCommand: string;
+}
+
 export interface Project {
   id: string;
   title: string;
   description: string;
   author: string;
+  role: string;
+  avatar?: string;
   tags: string[];
+  stars: number;
+  upvotes: number;
+  demoUrl?: string;
+  githubUrl?: string;
 }
 
 export interface Testimonial {
@@ -41,4 +57,3 @@ export interface WaitlistResponse {
   message?: string;
   error?: string;
 }
-

@@ -2,23 +2,73 @@
   {
     "id": "1",
     "title": "DevPulse",
-    "description": "Real-time collaborative code review dashboard built in 48 hours using Forge.",
+    "description": "Real-time collaborative code review dashboard built in 48 hours using Forge templates and AI debugging.",
     "author": "Alex Rivera",
-    "tags": ["Next.js", "Tailwind", "AI"]
+    "role": "Full-Stack Builder",
+    "tags": ["Next.js", "Tailwind", "AI"],
+    "stars": 342,
+    "upvotes": 128,
+    "demoUrl": "https://devpulse.forge.dev",
+    "githubUrl": "https://github.com/alexrivera/devpulse"
   },
   {
     "id": "2",
     "title": "PixelCraft",
-    "description": "Browser-based generative art studio powered by WebAssembly.",
+    "description": "Browser-based generative art studio powered by WebAssembly, WebGL, and custom shader pipelines.",
     "author": "Sarah Chen",
-    "tags": ["TypeScript", "Canvas", "Wasm"]
+    "role": "Frontend Specialist",
+    "tags": ["TypeScript", "Canvas", "Wasm"],
+    "stars": 512,
+    "upvotes": 240,
+    "demoUrl": "https://pixelcraft.forge.dev",
+    "githubUrl": "https://github.com/sarahchen/pixelcraft"
   },
   {
     "id": "3",
     "title": "EchoDB",
-    "description": "Lightweight distributed key-value store with web dashboard.",
+    "description": "Lightweight distributed key-value store with interactive web management dashboard and metrics graph.",
     "author": "Marcus Vance",
-    "tags": ["Rust", "React", "PostgreSQL"]
+    "role": "Systems Engineer",
+    "tags": ["Rust", "React", "PostgreSQL"],
+    "stars": 189,
+    "upvotes": 95,
+    "demoUrl": "https://echodb.forge.dev",
+    "githubUrl": "https://github.com/marcusv/echodb"
+  },
+  {
+    "id": "4",
+    "title": "AgentFlow",
+    "description": "Visual node-based drag-and-drop editor for orchestrating autonomous AI agent tools and workflows.",
+    "author": "Elena Rostova",
+    "role": "AI Researcher",
+    "tags": ["Python", "FastAPI", "React"],
+    "stars": 620,
+    "upvotes": 310,
+    "demoUrl": "https://agentflow.forge.dev",
+    "githubUrl": "https://github.com/elena/agentflow"
+  },
+  {
+    "id": "5",
+    "title": "HyperScale",
+    "description": "Global edge latency testing & monitoring tool designed specifically for microservice developers.",
+    "author": "David Kim",
+    "role": "DevOps Architect",
+    "tags": ["Go", "Next.js", "Edge"],
+    "stars": 275,
+    "upvotes": 142,
+    "demoUrl": "https://hyperscale.forge.dev",
+    "githubUrl": "https://github.com/davidkim/hyperscale"
+  },
+  {
+    "id": "6",
+    "title": "TaskCraft",
+    "description": "Keyboard-first developer task manager featuring local markdown synchronization and offline support.",
+    "author": "Maya Lin",
+    "role": "UI/UX Developer",
+    "tags": ["Electron", "Tailwind", "SQLite"],
+    "stars": 410,
+    "upvotes": 198,
+    "demoUrl": "https://taskcraft.forge.dev",
+    "githubUrl": "https://github.com/mayalin/taskcraft"
   }
 ]
-

@@ -3,7 +3,6 @@ import Hero from '@/components/hero';
 import Features from '@/components/features';
 import Audience from '@/components/audience';
 import HowItWorks from '@/components/how-it-works';
-import SocialProof from '@/components/social-proof';
 import WaitlistForm from '@/components/waitlist';
 import Footer from '@/components/footer';
 
@@ -16,7 +15,6 @@ export default function Home() {
         <Features />
         <Audience />
         <HowItWorks />
-        <SocialProof />
         <WaitlistForm />
       </main>
       <Footer />

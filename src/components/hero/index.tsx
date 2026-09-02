@@ -3,9 +3,9 @@ export default function Hero() {
     <section className="px-4 md:px-16 py-20 md:py-28 max-w-[1440px] mx-auto fade-in-up">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         <div className="space-y-8">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-on-background leading-tight">
-            From &ldquo;I have an idea&rdquo; to <br className="hidden sm:inline" />
-            &ldquo;I built it.&rdquo;
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-on-background leading-[1.1]">
+            <span className="block">From &ldquo;I have an idea&rdquo;</span>
+            <span className="block text-primary">to &ldquo;I built it.&rdquo;</span>
           </h1>
           <p className="text-base md:text-lg text-on-surface-variant max-w-xl leading-relaxed">
             Forge gives you the tools to go from an idea to a working project through templates, AI-assisted development, deployment, and community.

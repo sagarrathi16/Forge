@@ -1,0 +1,54 @@
+[
+  {
+    "id": "react-supabase",
+    "title": "React + Supabase Fullstack",
+    "description": "Production-ready starter with authentication, database RLS, and real-time data sync.",
+    "category": "Full-Stack",
+    "tags": ["React", "Supabase", "TypeScript", "Tailwind"],
+    "badge": "Popular",
+    "cliCommand": "forge init --template react-supabase"
+  },
+  {
+    "id": "nextjs-saas",
+    "title": "Next.js App Router SaaS",
+    "description": "High-performance SSR architecture with Server Actions, dark mode, and UI components.",
+    "category": "Frontend",
+    "tags": ["Next.js", "TypeScript", "Tailwind CSS"],
+    "badge": "Featured",
+    "cliCommand": "forge init --template nextjs-saas"
+  },
+  {
+    "id": "fastapi-llm",
+    "title": "FastAPI + LLM Orchestration",
+    "description": "Async Python microservice configured for streaming LLM responses and vector search.",
+    "category": "AI / ML",
+    "tags": ["Python", "FastAPI", "LangChain", "Vector DB"],
+    "badge": "New",
+    "cliCommand": "forge init --template fastapi-llm"
+  },
+  {
+    "id": "vite-wasm",
+    "title": "Vite + WebAssembly Rust",
+    "description": "Low-latency browser app template with Rust Wasm toolchain and Canvas API.",
+    "category": "Systems",
+    "tags": ["Rust", "Wasm", "TypeScript", "Vite"],
+    "cliCommand": "forge init --template vite-wasm"
+  },
+  {
+    "id": "mobile-react-native",
+    "title": "Expo React Native Cross-Platform",
+    "description": "Mobile application starter with tab navigation, vector icons, and offline storage.",
+    "category": "Frontend",
+    "tags": ["React Native", "Expo", "TypeScript"],
+    "cliCommand": "forge init --template expo-mobile"
+  },
+  {
+    "id": "chrome-extension-mv3",
+    "title": "Chrome Extension Manifest V3",
+    "description": "Modern browser extension boilerplate with service worker, popup UI, and content scripts.",
+    "category": "Systems",
+    "tags": ["TypeScript", "Manifest V3", "Tailwind"],
+    "cliCommand": "forge init --template chrome-mv3"
+  }
+]
+
