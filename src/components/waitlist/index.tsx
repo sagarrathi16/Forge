@@ -1,12 +1,24 @@
 'use client';
 
 import { validateEmail } from '@/lib/validation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function WaitlistForm() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'duplicate' | 'error'>('idle');
   const [message, setMessage] = useState('');
+  const [waitlistCount, setWaitlistCount] = useState<number>(14);
+
+  useEffect(() => {
+    fetch('/api/waitlist')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && typeof data.count === 'number') {
+          setWaitlistCount(data.count);
+        }
+      })
+      .catch((err) => console.warn('Could not fetch waitlist count:', err));
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +45,11 @@ export default function WaitlistForm() {
 
       if (res.status === 201 && data.success) {
         setStatus('success');
+        if (typeof data.count === 'number') {
+          setWaitlistCount(data.count);
+        } else {
+          setWaitlistCount((prev) => prev + 1);
+        }
         setMessage(data.message || "Successfully joined the waitlist! We'll be in touch soon.");
         setEmail('');
       } else if (res.status === 409) {
@@ -57,7 +74,7 @@ export default function WaitlistForm() {
         {/* Live Social Proof Pill */}
         <div className="inline-flex items-center gap-2 text-xs font-mono text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>14 builders joined in the last 2 hours</span>
+          <span>{waitlistCount}+ builders on the waitlist</span>
         </div>
 
         <h2 className="text-2xl md:text-4xl font-extrabold text-on-background tracking-tight">
@@ -77,69 +94,62 @@ export default function WaitlistForm() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="developer@domain.com"
+              placeholder="name@domain.com"
               disabled={status === 'submitting'}
-              aria-label="Email address"
+              className="flex-1 bg-surface-container border border-outline-variant rounded px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               required
-              className="flex-grow bg-surface-dim border border-outline-variant rounded p-3 text-on-background focus:border-primary focus:ring-1 focus:ring-primary focus:shadow-[0_0_20px_rgba(192,193,255,0.2)] outline-none transition-all text-sm font-mono placeholder:text-on-surface-variant/50 disabled:opacity-50"
             />
             <button
-              id="submitBtn"
               type="submit"
               disabled={status === 'submitting'}
-              className="bg-primary text-on-primary text-sm font-bold px-6 py-3 rounded border border-primary hover:bg-transparent hover:text-primary transition-all duration-200 shadow-[0_0_16px_rgba(192,193,255,0.3)] hover:shadow-[0_0_24px_rgba(192,193,255,0.5)] whitespace-nowrap disabled:opacity-70 disabled:cursor-not-allowed btn-tactile flex items-center justify-center gap-2"
+              className="bg-primary text-on-primary font-bold px-6 py-3 rounded text-sm hover:bg-transparent hover:text-primary border border-primary transition-all duration-200 shadow-[0_0_16px_rgba(192,193,255,0.25)] hover:shadow-[0_0_24px_rgba(192,193,255,0.4)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-tactile cursor-pointer"
             >
-              {status === 'submitting' && (
-                <svg
-                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-on-primary"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v8H4z"
-                  ></path>
-                </svg>
+              {status === 'submitting' ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-on-primary border-t-transparent rounded-full animate-spin"></span>
+                  <span>Joining...</span>
+                </>
+              ) : (
+                'Join waitlist'
               )}
-              <span>{status === 'submitting' ? 'Joining...' : 'Join waitlist'}</span>
             </button>
           </div>
 
-          <div
-            id="formStatus"
-            aria-live="polite"
-            className="text-sm min-h-[24px] flex items-center justify-center font-mono"
-          >
-            {status === 'success' && (
-              <span className="text-emerald-400 font-semibold flex items-center gap-1.5 animate-in fade-in duration-200" role="status">
-                <span className="material-symbols-outlined text-base">check_circle</span>
-                {message}
-              </span>
-            )}
-            {status === 'duplicate' && (
-              <span className="text-amber-300 font-semibold flex items-center gap-1.5 animate-in fade-in duration-200" role="status">
-                <span className="material-symbols-outlined text-base">info</span>
-                {message}
-              </span>
-            )}
-            {status === 'error' && (
-              <span className="text-red-400 font-semibold flex items-center gap-1.5 animate-in fade-in duration-200" role="alert">
-                <span className="material-symbols-outlined text-base">error</span>
-                {message}
-              </span>
-            )}
-          </div>
+          <p className="text-[11px] text-on-surface-variant/60 font-mono">
+            No spam. We respect developer inboxes. Unsubscribe anytime.
+          </p>
         </form>
+
+        {/* Feedback Banners */}
+        {status === 'success' && (
+          <div
+            role="status"
+            className="p-3.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono animate-in fade-in slide-in-from-top-1 duration-200 flex items-center justify-center gap-2"
+          >
+            <span className="material-symbols-outlined text-base">check_circle</span>
+            <span>{message}</span>
+          </div>
+        )}
+
+        {status === 'duplicate' && (
+          <div
+            role="alert"
+            className="p-3.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-mono animate-in fade-in slide-in-from-top-1 duration-200 flex items-center justify-center gap-2"
+          >
+            <span className="material-symbols-outlined text-base">info</span>
+            <span>{message}</span>
+          </div>
+        )}
+
+        {status === 'error' && (
+          <div
+            role="alert"
+            className="p-3.5 rounded bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-mono animate-in fade-in slide-in-from-top-1 duration-200 flex items-center justify-center gap-2"
+          >
+            <span className="material-symbols-outlined text-base">error</span>
+            <span>{message}</span>
+          </div>
+        )}
       </div>
     </section>
   );

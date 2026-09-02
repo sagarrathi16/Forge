@@ -1,8 +1,18 @@
 import { NextRequest } from 'next/server';
 import { describe, expect, it } from 'vitest';
-import { POST } from '../app/api/waitlist/route';
+import { GET, POST } from '../app/api/waitlist/route';
 
 describe('Waitlist API Route Integration Tests', () => {
+  it('GET should return 200 OK and valid subscriber count', async () => {
+    const res = await GET();
+    expect(res.status).toBe(200);
+
+    const data = await res.json();
+    expect(data.success).toBe(true);
+    expect(typeof data.count).toBe('number');
+    expect(data.count).toBeGreaterThanOrEqual(14);
+  });
+
   it('should return 400 Bad Request when email is missing in request body', async () => {
     const req = new NextRequest('http://localhost:3000/api/waitlist', {
       method: 'POST',
@@ -31,7 +41,7 @@ describe('Waitlist API Route Integration Tests', () => {
     expect(data.error).toBe('Please enter a valid email address.');
   });
 
-  it('should return 201 Created on valid email submission', async () => {
+  it('should return 201 Created on valid email submission and return queue position', async () => {
     const uniqueEmail = `test.user.${Date.now()}@example.com`;
     const req = new NextRequest('http://localhost:3000/api/waitlist', {
       method: 'POST',
@@ -43,7 +53,8 @@ describe('Waitlist API Route Integration Tests', () => {
 
     expect(response.status).toBe(201);
     expect(data.success).toBe(true);
-    expect(data.message).toBe('You have been successfully added to the waitlist!');
+    expect(typeof data.count).toBe('number');
+    expect(data.message).toContain("waitlist!");
   });
 
   it('should return 409 Conflict when submitting a duplicate email address', async () => {
@@ -70,4 +81,3 @@ describe('Waitlist API Route Integration Tests', () => {
     expect(data2.error).toBe('This email address is already on the waitlist.');
   });
 });
-

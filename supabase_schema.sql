@@ -31,6 +31,17 @@ CREATE POLICY "Restrict select to service role"
   TO service_role
   USING (true);
 
+-- Function allowing public to safely read the count of waitlist members without exposing emails
+CREATE OR REPLACE FUNCTION public.get_waitlist_count()
+RETURNS INTEGER
+LANGUAGE sql
+SECURITY DEFINER
+AS $$
+  SELECT count(*)::integer FROM public.waitlist;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.get_waitlist_count() TO anon, authenticated, service_role;
+
 
 -- ========================================================
 -- 2. STARTER KIT TEMPLATES TABLE

@@ -1,6 +1,22 @@
-import { insertWaitlistEmail } from '@/lib/db';
+import { insertWaitlistEmail, getWaitlistCount } from '@/lib/db';
 import { validateEmail } from '@/lib/validation';
 import { NextRequest, NextResponse } from 'next/server';
+
+export async function GET() {
+  try {
+    const count = await getWaitlistCount();
+    return NextResponse.json(
+      { success: true, count },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('Waitlist GET count error:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch waitlist count' },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,8 +41,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const currentCount = await getWaitlistCount();
+
     return NextResponse.json(
-      { success: true, message: 'You have been successfully added to the waitlist!' },
+      {
+        success: true,
+        count: currentCount,
+        position: currentCount,
+        message: `You're #${currentCount} on the waitlist! We'll reach out soon.`,
+      },
       { status: 201 }
     );
   } catch (error) {
@@ -37,4 +60,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

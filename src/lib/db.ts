@@ -429,3 +429,59 @@ export async function insertWaitlistEmail(email: string): Promise<{ success: boo
   inMemoryWaitlist.add(normalizedEmail);
   return { success: true };
 }
+
+/**
+ * Retrieves the total count of waitlist subscribers from Supabase or memory
+ */
+export async function getWaitlistCount(): Promise<number> {
+  const { supabaseUrl, supabaseKey } = getSupabaseConfig();
+
+  if (supabaseUrl && supabaseKey) {
+    try {
+      // 1. Try Supabase RPC get_waitlist_count
+      const rpcRes = await fetch(`${supabaseUrl}/rest/v1/rpc/get_waitlist_count`, {
+        method: 'POST',
+        headers: {
+          apikey: supabaseKey,
+          Authorization: `Bearer ${supabaseKey}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (rpcRes.ok) {
+        const count = await rpcRes.json();
+        if (typeof count === 'number') {
+          return count;
+        }
+      }
+
+      // 2. Fallback to querying with Prefer: count=exact
+      const countRes = await fetch(`${supabaseUrl}/rest/v1/waitlist?select=id`, {
+        headers: {
+          apikey: supabaseKey,
+          Authorization: `Bearer ${supabaseKey}`,
+          Prefer: 'count=exact',
+        },
+      });
+
+      if (countRes.ok) {
+        const contentRange = countRes.headers.get('content-range');
+        if (contentRange) {
+          const total = contentRange.split('/')[1];
+          if (total && !isNaN(Number(total))) {
+            return Number(total);
+          }
+        }
+        const data = await countRes.json();
+        if (Array.isArray(data)) {
+          return data.length;
+        }
+      }
+    } catch (error) {
+      console.warn('Could not fetch waitlist count from Supabase:', error);
+    }
+  }
+
+  return 14 + inMemoryWaitlist.size;
+}
+
